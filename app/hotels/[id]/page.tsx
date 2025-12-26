@@ -1,4 +1,4 @@
-    import { createServerClient } from "@/lib/supabase/server"
+    import { getSupabaseServerClient } from "@/lib/supabase/server"
     import HotelClient from "./HotelClient"
 
     type HotelPageProps = {
@@ -8,7 +8,7 @@
     export default async function HotelPage({ params }: HotelPageProps) {
     const { id } = await params
 
-    const supabase = createServerClient()
+    const supabase = await getSupabaseServerClient()
 
     // Fetch hotel
     const { data: hotel, error: hotelError } = await supabase
@@ -29,7 +29,6 @@
 
     return (
         <HotelClient
-        hotel={hotel}
         rooms={rooms ?? []}
         />
     )

@@ -1,6 +1,6 @@
     "use server"
 
-    import { createServerClient } from "@/lib/supabase/server"
+    import { getSupabaseServerClient } from "@/lib/supabase/server"
 
     type CreateBookingParams = {
     roomId: string
@@ -15,11 +15,14 @@
     checkOut,
     totalPrice,
     }: CreateBookingParams) {
-    const supabase = createServerClient()
+    const supabase = await getSupabaseServerClient()
 
-    const {
-        data: { user },
-    } = await supabase.auth.getUser()
+        const {
+    data: { user },
+} = await supabase.auth.getUser()
+
+console.log("SERVER USER:", user)
+
 
     if (!user) {
         return { error: "User not authenticated" }
