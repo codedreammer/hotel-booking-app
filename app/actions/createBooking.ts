@@ -19,9 +19,10 @@
 
         const {
     data: { user },
+    error: authError,
 } = await supabase.auth.getUser()
 
-console.log("SERVER USER:", user)
+console.log("AUTH USER:", user)
 
 
     if (!user) {

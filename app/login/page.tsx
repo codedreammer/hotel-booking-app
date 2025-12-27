@@ -1,7 +1,7 @@
     'use client'
 
     import { useState } from 'react'
-    import { supabase } from '@/lib/supabase/client'
+    import { supabase } from "@/lib/supabase/client"
     import { useRouter } from 'next/navigation'
 
     export default function LoginPage() {
@@ -13,15 +13,22 @@
     const handleLogin = async () => {
         setError(null)
         const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-        })
-
+    email,
+    password,
+    })
         if (error) {
         setError(error.message)
-        } else {
-        router.push("/dashboard")
+        return
         }
+        
+        // ✅ Let Supabase finish writing cookies
+        await new Promise((resolve) => setTimeout(resolve, 500))
+        
+        // ✅ Refresh the app router (important)
+        router.refresh()
+        
+        // ✅ THEN navigate
+        router.push("/dashboard")
     }
 
     return (
