@@ -1,3 +1,4 @@
+    import Link from "next/link"
     import { cookies } from "next/headers"
     import { createServerClient } from "@supabase/ssr"
     import { redirect } from "next/navigation"
@@ -223,14 +224,22 @@
                     {hotel?.name}
                     </p>
 
-                    <p className="text-sm text-gray-400">
-                    Room Type: {room.rooms_type}
-                    </p>
+                    <div className="flex justify-between items-center">
+                    <div>
+                        <p className="font-semibold">
+                        Room Type: {room.rooms_type}
+                        </p>
+                        <p>₹{room.price_per_night} / night</p>
+                        <p>Total Rooms: {room.total_rooms}</p>
+                        <p>Max Guests: {room.max_guests}</p>
+                    </div>
 
-                    <div className="mt-2 text-sm grid grid-cols-2 gap-2">
-                    <p>💰 ₹{room.price_per_night} / night</p>
-                    <p>🛏 Total Rooms: {room.total_rooms}</p>
-                    <p>👥 Max Guests: {room.max_guests}</p>
+                    <Link
+                        href={`/owner/dashboard/rooms/${room.id}`}
+                        className="text-sm px-3 py-1 rounded bg-blue-600 hover:bg-blue-700"
+                    >
+                        Edit
+                    </Link>
                     </div>
                 </div>
                 )
