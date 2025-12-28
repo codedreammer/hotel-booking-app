@@ -89,6 +89,26 @@
         console.error("Owner bookings error:", bookingsError.message)
     }
 
+    const { data: rooms, error: roomsError } = await supabase
+        .from("rooms")
+        .select(`
+        id,
+        rooms_type,
+        price_per_night,
+        total_rooms,
+        max_guests,
+        hotels (
+            id,
+            name
+        )
+        `)
+        .eq("hotels.owner_id", user.id)
+        .order("created_at", { ascending: false })
+
+    if (roomsError) {
+        console.error("Owner rooms error:", roomsError.message)
+    }
+
     return (
         <div className="max-w-6xl mx-auto p-6 space-y-6">
         <h1 className="text-2xl font-bold">
@@ -175,6 +195,43 @@
                     >
                     {booking.status}
                     </span>
+                </div>
+                )
+            })}
+            </div>
+        )}
+
+        <h2 className="text-xl font-semibold mt-10">
+            Your Rooms
+        </h2>
+
+        {!rooms || rooms.length === 0 ? (
+            <p className="text-gray-500 mt-4">
+            No rooms added yet.
+            </p>
+        ) : (
+            <div className="mt-4 space-y-4">
+            {rooms.map((room) => {
+                const hotel = room.hotels?.[0]
+
+                return (
+                <div
+                    key={room.id}
+                    className="border rounded-lg p-4 bg-black/40"
+                >
+                    <p className="font-semibold">
+                    {hotel?.name}
+                    </p>
+
+                    <p className="text-sm text-gray-400">
+                    Room Type: {room.rooms_type}
+                    </p>
+
+                    <div className="mt-2 text-sm grid grid-cols-2 gap-2">
+                    <p>💰 ₹{room.price_per_night} / night</p>
+                    <p>🛏 Total Rooms: {room.total_rooms}</p>
+                    <p>👥 Max Guests: {room.max_guests}</p>
+                    </div>
                 </div>
                 )
             })}
