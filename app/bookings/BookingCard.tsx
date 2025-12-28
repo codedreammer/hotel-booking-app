@@ -52,6 +52,8 @@
             className={`inline-block mt-2 px-3 py-1 text-sm rounded-full ${
                 booking.status === "confirmed"
                 ? "bg-green-100 text-green-700"
+                : booking.status === "completed"
+                ? "bg-blue-100 text-blue-700"
                 : "bg-gray-100 text-gray-700"
             }`}
             >
