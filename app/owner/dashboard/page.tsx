@@ -2,6 +2,7 @@
     import { cookies } from "next/headers"
     import { createServerClient } from "@supabase/ssr"
     import { redirect } from "next/navigation"
+    import { deleteRoom } from "./actions"
 
     type Hotel = {
     id: string
@@ -98,16 +99,17 @@
         price_per_night,
         total_rooms,
         max_guests,
-        hotels (
+        hotel_id,
+        hotels!inner (
             id,
-            name
+            name,
+            owner_id
         )
         `)
         .eq("hotels.owner_id", user.id)
-        .order("created_at", { ascending: false })
 
     if (roomsError) {
-        console.error("Owner rooms error:", roomsError.message)
+        console.error("Rooms error:", roomsError.message)
     }
 
     return (
@@ -147,6 +149,13 @@
                     Added on{" "}
                     {new Date(hotel.created_at).toLocaleDateString()}
                 </p>
+
+                <Link
+                    href={`/owner/dashboard/hotels/${hotel.id}/rooms/new`}
+                    className="inline-block mt-4 text-sm px-4 py-2 bg-green-600 hover:bg-green-700 rounded"
+                >
+                    ➕ Add Room
+                </Link>
                 </div>
             ))}
             </div>
@@ -234,12 +243,24 @@
                         <p>Max Guests: {room.max_guests}</p>
                     </div>
 
-                    <Link
-                        href={`/owner/dashboard/rooms/${room.id}`}
-                        className="text-sm px-3 py-1 rounded bg-blue-600 hover:bg-blue-700"
-                    >
-                        Edit
-                    </Link>
+                    <div className="flex gap-2">
+                        <Link
+                            href={`/owner/dashboard/rooms/${room.id}`}
+                            className="text-sm px-3 py-1 rounded bg-blue-600 hover:bg-blue-700"
+                        >
+                            Edit
+                        </Link>
+
+                        <form action={deleteRoom}>
+                            <input type="hidden" name="room_id" value={room.id} />
+                            <button
+                                type="submit"
+                                className="text-sm px-3 py-1 bg-red-600 hover:bg-red-700 rounded"
+                            >
+                                Delete
+                            </button>
+                        </form>
+                    </div>
                     </div>
                 </div>
                 )

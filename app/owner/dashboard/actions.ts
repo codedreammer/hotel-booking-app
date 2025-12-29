@@ -2,6 +2,7 @@
 
     import { cookies } from "next/headers"
     import { createServerClient } from "@supabase/ssr"
+    import { redirect } from "next/navigation"
 
     export async function updateRoom(
     roomId: string,
@@ -17,7 +18,14 @@
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
         cookies: {
-            get: (name) => cookieStore.get(name)?.value,
+            getAll() {
+                return cookieStore.getAll()
+            },
+            setAll(cookiesToSet) {
+                cookiesToSet.forEach(({ name, value, options }) =>
+                    cookieStore.set(name, value, options)
+                )
+            },
         },
         }
     )
@@ -32,7 +40,14 @@
     // 2️⃣ Ownership validation (CRITICAL)
     const { data: room, error } = await supabase
         .from("rooms")
-        .select("id, hotel_id, hotels(owner_id)")
+        .select(`
+          id, 
+          hotel_id, 
+          hotels!inner (
+            id,
+            owner_id
+          )
+        `)
         .eq("id", roomId)
         .single()
 
@@ -40,9 +55,7 @@
         throw new Error("Room not found")
     }
 
-    const hotel = room.hotels?.[0]
-
-    if (!hotel || hotel.owner_id !== user.id) {
+    if (!room.hotels || room.hotels.owner_id !== user.id) {
         throw new Error("Unauthorized")
     }
 
@@ -68,4 +81,58 @@
         .eq("id", roomId)
 
     return { success: true }
+}
+
+export async function deleteRoom(formData: FormData) {
+  const roomId = formData.get("room_id") as string
+
+  if (!roomId) throw new Error("Room ID missing")
+
+  const cookieStore = await cookies()
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+            return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+            )
+        },
+      },
+    }
+  )
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  // 🔐 Ownership validation (MANDATORY)
+  const { data: room, error } = await supabase
+    .from("rooms")
+    .select(`
+      id, 
+      hotels!inner (
+        id,
+        owner_id
+      )
+    `)
+    .eq("id", roomId)
+    .single()
+
+  if (error || !room || !room.hotels || room.hotels.owner_id !== user.id) {
+    throw new Error("Unauthorized")
+  }
+
+
+  // 🗑️ Delete room
+  await supabase
+    .from("rooms")
+    .delete()
+    .eq("id", roomId)
+
+  redirect("/owner/dashboard")
 }

@@ -24,6 +24,8 @@
         data: { user },
     } = await supabase.auth.getUser()
 
+    console.log("SERVER USER:", user)
+
     if (!user) {
         return <p className="p-6">Unauthorized</p>
     }
@@ -46,27 +48,23 @@
         )
         `)
         .eq("hotels.owner_id", user.id)
+        .eq("id", roomId)
+        .single()
 
     if (error || !rooms) {
         return <p className="p-6">Room not found</p>
     }
 
-    const room = rooms.find(r => r.id === roomId)
-    if (!room) {
-        return <p className="p-6">Room not found</p>
-    }
-
-    const hotel = room.hotels?.[0]
-    if (!hotel || hotel.owner_id !== user.id) {
+    if (!rooms.hotels || rooms.hotels.owner_id !== user.id) {
         return <p className="p-6">Unauthorized</p>
     }
 
     return (
         <div className="max-w-xl mx-auto p-6">
         <h1 className="text-xl font-bold mb-4">
-            Edit Room: {room.rooms_type}
+            Edit Room: {rooms.rooms_type}
         </h1>
-        <RoomEditForm room={room} />
+        <RoomEditForm room={rooms} />
         </div>
     )
     }
