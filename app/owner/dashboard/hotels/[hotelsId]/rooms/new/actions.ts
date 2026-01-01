@@ -40,12 +40,17 @@
     if (!hotel) throw new Error("Unauthorized")
 
     // ✅ Create room
+    const rooms_type = formData.get("rooms_type")
+    const price_per_night = Number(formData.get("price_per_night"))
+    const total_rooms = Number(formData.get("total_rooms"))
+    const max_guests = Number(formData.get("max_guests"))
+
     await supabase.from("rooms").insert({
-        hotel_id: hotelId,
-        rooms_type: formData.get("rooms_type"),
-        price_per_night: Number(formData.get("price_per_night")),
-        total_rooms: Number(formData.get("total_rooms")),
-        max_guests: Number(formData.get("max_guests")),
+        hotel_id: hotelId, // 🔴 MUST EXIST
+        rooms_type,
+        price_per_night,
+        total_rooms,
+        max_guests,
     })
 
     redirect("/owner/dashboard")

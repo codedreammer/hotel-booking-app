@@ -49,13 +49,14 @@
           )
         `)
         .eq("id", roomId)
+        .eq("is_active", true)
         .single()
 
     if (error || !room) {
         throw new Error("Room not found")
     }
 
-    if (!room.hotels || room.hotels.owner_id !== user.id) {
+    if (!room.hotels || (room.hotels as any).owner_id !== user.id) {
         throw new Error("Unauthorized")
     }
 
@@ -83,11 +84,7 @@
     return { success: true }
 }
 
-export async function deleteRoom(formData: FormData) {
-  const roomId = formData.get("room_id") as string
-
-  if (!roomId) throw new Error("Room ID missing")
-
+export async function deleteRoom(roomId: string) {
   const cookieStore = await cookies()
 
   const supabase = createServerClient(
@@ -108,7 +105,7 @@ export async function deleteRoom(formData: FormData) {
   )
 
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error("Unauthorized")
+  if (!user) return { error: "Unauthorized" }
 
   // 🔐 Ownership validation (MANDATORY)
   const { data: room, error } = await supabase
@@ -121,18 +118,33 @@ export async function deleteRoom(formData: FormData) {
       )
     `)
     .eq("id", roomId)
+    .eq("is_active", true)
     .single()
 
-  if (error || !room || !room.hotels || room.hotels.owner_id !== user.id) {
-    throw new Error("Unauthorized")
+  if (error || !room || !room.hotels || (room.hotels as any).owner_id !== user.id) {
+    return { error: "Unauthorized" }
   }
 
+  // Check for active bookings
+  const today = new Date().toISOString().split("T")[0]
 
-  // 🗑️ Delete room
+  const { count } = await supabase
+    .from("bookings")
+    .select("id", { count: "exact", head: true })
+    .eq("room_id", roomId)
+    .in("status", ["pending", "confirmed", "checked_in"])
+    .gte("check_out", today)
+
+  if (count && count > 0) {
+    return {
+      error: "Room has active or upcoming bookings",
+    }
+  }
+
   await supabase
     .from("rooms")
-    .delete()
+    .update({ is_active: false })
     .eq("id", roomId)
 
-  redirect("/owner/dashboard")
+  return { success: true }
 }

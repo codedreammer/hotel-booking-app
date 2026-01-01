@@ -2,7 +2,7 @@
     import { cookies } from "next/headers"
     import { createServerClient } from "@supabase/ssr"
     import { redirect } from "next/navigation"
-    import { deleteRoom } from "./actions"
+    import DeleteRoomButton from "./DeleteRoomButton"
 
     type Hotel = {
     id: string
@@ -251,15 +251,7 @@
                             Edit
                         </Link>
 
-                        <form action={deleteRoom}>
-                            <input type="hidden" name="room_id" value={room.id} />
-                            <button
-                                type="submit"
-                                className="text-sm px-3 py-1 bg-red-600 hover:bg-red-700 rounded"
-                            >
-                                Delete
-                            </button>
-                        </form>
+                        <DeleteRoomButton roomId={room.id} />
                     </div>
                     </div>
                 </div>

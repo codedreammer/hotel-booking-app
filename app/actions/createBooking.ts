@@ -1,6 +1,7 @@
     "use server"
 
     import { getSupabaseServerClient } from "@/lib/supabase/server"
+    import { checkRoomAvailability } from "./availability"
 
     type CreateBookingParams = {
     roomId: string
@@ -15,6 +16,18 @@
     checkOut,
     totalPrice,
     }: CreateBookingParams) {
+    // 🔒 FINAL availability guard
+    const { available, remaining } = await checkRoomAvailability(
+    roomId,
+    checkIn,
+    checkOut
+    );
+
+    if (!available) {
+    throw new Error("No rooms available for selected dates");
+    }
+
+
     const supabase = await getSupabaseServerClient()
 
         const {

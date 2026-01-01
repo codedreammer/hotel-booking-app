@@ -2,7 +2,8 @@
     import { createServerClient } from "@supabase/ssr"
     import { createRoom } from "./actions"
 
-    export default async function NewRoomPage({ params }: { params: { hotelId: string } }) {
+    export default async function NewRoomPage({ params }: { params: Promise<{ hotelsId: string }> }) {
+    const { hotelsId } = await params
     const cookieStore = await cookies()
 
     const supabase = createServerClient(
@@ -23,7 +24,7 @@
     const { data: hotel } = await supabase
         .from("hotels")
         .select("id")
-        .eq("id", params.hotelId)
+        .eq("id", hotelsId)
         .eq("owner_id", user.id)
         .single()
 
@@ -34,7 +35,7 @@
         <h1 className="text-xl font-bold mb-4">Add Room</h1>
 
         <form action={createRoom}>
-            <input type="hidden" name="hotel_id" value={params.hotelId} />
+            <input type="hidden" name="hotel_id" value={hotelsId} />
 
             <input name="rooms_type" placeholder="Room Type" required className="input" />
             <input name="price_per_night" type="number" placeholder="Price" required className="input" />
