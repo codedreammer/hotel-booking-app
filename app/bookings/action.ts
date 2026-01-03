@@ -1,56 +1,54 @@
-    "use server";
+"use server";
 
-    import { cookies } from "next/headers";
-    import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 
-    export async function cancelBooking(bookingId: string) {
-    const cookieStore = await cookies();
-
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-        cookies: {
-            getAll: () => cookieStore.getAll(),
-            setAll: () => {},
-        },
-        }
-    );
-
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) return { error: "Unauthorized" };
-
-    // Fetch booking
-    const { data: booking, error } = await supabase
-        .from("bookings")
-        .select("id, user_id, check_in, status")
-        .eq("id", bookingId)
-        .single();
-
-    if (error || !booking) return { error: "Booking not found" };
-
-    if (booking.user_id !== user.id) {
-        return { error: "Unauthorized" };
+async function getSupabase() {
+  const cookieStore = await cookies();
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: () => {},
+      },
     }
+  );
+}
 
-    // ❌ Cannot cancel after check-in
-    const today = new Date().toISOString().split("T")[0];
+export async function cancelBooking(bookingId: string) {
+  const supabase = await getSupabase();
 
-    if (booking.check_in <= today) {
-        return { error: "Cannot cancel after check-in date" };
-    }
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-    if (["checked_in", "checked_out"].includes(booking.status)) {
-        return { error: "Cannot cancel this booking" };
-    }
+  if (!user) return { error: "Unauthorized" };
 
-    await supabase
-        .from("bookings")
-        .update({ status: "cancelled" })
-        .eq("id", bookingId);
+  // Fetch booking
+  const { data: booking, error } = await supabase
+    .from("bookings")
+    .select("id, status, user_id")
+    .eq("id", bookingId)
+    .single();
 
-    return { success: true };
-    }
+  if (error || !booking) {
+    return { error: "Booking not found" };
+  }
+
+  if (booking.user_id !== user.id) {
+    return { error: "Unauthorized" };
+  }
+
+  if (booking.status === "checked_in" || booking.status === "checked_out") {
+    return { error: "Booking cannot be cancelled at this stage" };
+  }
+
+  await supabase
+    .from("bookings")
+    .update({ status: "cancelled" })
+    .eq("id", bookingId);
+
+  return { success: true };
+}

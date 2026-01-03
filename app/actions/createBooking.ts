@@ -1,59 +1,87 @@
-    "use server"
+"use server";
 
-    import { getSupabaseServerClient } from "@/lib/supabase/server"
-    import { checkRoomAvailability } from "./availability"
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 
-    type CreateBookingParams = {
-    roomId: string
-    checkIn: string
-    checkOut: string
-    totalPrice: number
+async function getSupabase() {
+  const cookieStore = await cookies();
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          );
+        },
+      },
     }
+  );
+}
 
-    export async function createBooking({
-    roomId,
-    checkIn,
-    checkOut,
-    totalPrice,
-    }: CreateBookingParams) {
-    // 🔒 FINAL availability guard
-    const { available, remaining } = await checkRoomAvailability(
-    roomId,
-    checkIn,
-    checkOut
-    );
+export async function createBooking(
+  roomId: string,
+  checkIn: string,
+  checkOut: string
+) {
+  const supabase = await getSupabase();
 
-    if (!available) {
-    throw new Error("No rooms available for selected dates");
-    }
-
-
-    const supabase = await getSupabaseServerClient()
-
-        const {
+  /* 1️⃣ Auth (guest must be logged in) */
+  const {
     data: { user },
-    error: authError,
-} = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
-console.log("AUTH USER:", user)
+  if (!user) {
+    return { error: "Please login to continue" };
+  }
 
+  /* 2️⃣ Fetch room (single source of truth) */
+  const { data: room, error: roomError } = await supabase
+    .from("rooms")
+    .select("id, total_rooms, price_per_night")
+    .eq("id", roomId)
+    .eq("is_active", true)
+    .single();
 
-    if (!user) {
-        return { error: "User not authenticated" }
-    }
+  if (roomError || !room) {
+    return { error: "Room not found" };
+  }
 
-    const { error } = await supabase.from("bookings").insert({
-        user_id: user.id,
-        room_id: roomId,
-        check_in: checkIn,
-        check_out: checkOut,
-        total_price: totalPrice,
-        status: "confirmed",
-    })
+  /* 3️⃣ Count blocking bookings */
+  const { count, error: countError } = await supabase
+    .from("bookings")
+    .select("id", { count: "exact", head: true })
+    .eq("room_id", roomId)
+    .in("status", ["confirmed", "checked_in"])
+    .lt("check_in", checkOut)
+    .gt("check_out", checkIn);
 
-    if (error) {
-        return { error: error.message }
-    }
+  if (countError) {
+    return { error: "Failed to check availability" };
+  }
 
-    return { success: true }
-    }
+  if ((count ?? 0) >= room.total_rooms) {
+    return { error: "Room is fully booked for selected dates" };
+  }
+
+  /* 4️⃣ Create booking (PENDING) */
+  const { error: insertError } = await supabase
+    .from("bookings")
+    .insert({
+      user_id: user.id,
+      room_id: roomId,
+      check_in: checkIn,
+      check_out: checkOut,
+      status: "pending",
+      price: room.price_per_night,
+    });
+
+  if (insertError) {
+    return { error: "Failed to create booking" };
+  }
+
+  return { success: true };
+}
