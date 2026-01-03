@@ -3,6 +3,19 @@
     import { cookies } from "next/headers";
     import { createServerClient } from "@supabase/ssr";
 
+    function getDatesBetween(start: string, end: string) {
+        const dates: string[] = [];
+        let current = new Date(start);
+        const last = new Date(end);
+
+        while (current < last) {
+            dates.push(current.toISOString().split("T")[0]);
+            current.setDate(current.getDate() + 1);
+        }
+
+        return dates;
+    }
+
     async function getSupabase() {
     const cookieStore = await cookies();
 
@@ -123,8 +136,12 @@
         .from("bookings")
         .select(`
         id,
+        check_in,
+        check_out,
         status,
         room:rooms (
+            id,
+            total_rooms,
             hotel:hotels (
             owner_id
             )
@@ -137,17 +154,51 @@
         return { error: "Unauthorized" };
     }
 
+    // Overbooking check for confirmations
+    if (status === "confirmed") {
+        const { data: overlappingBookings } = await supabase
+            .from("bookings")
+            .select("id, check_in, check_out")
+            .eq("room_id", booking.room.id)
+            .in("status", ["confirmed", "checked_in"])
+            .neq("id", bookingId);
+
+        const occupancy: Record<string, number> = {};
+
+        for (const b of overlappingBookings ?? []) {
+            const days = getDatesBetween(b.check_in, b.check_out);
+            for (const day of days) {
+                occupancy[day] = (occupancy[day] ?? 0) + 1;
+            }
+        }
+
+        const bookingDays = getDatesBetween(
+            booking.check_in,
+            booking.check_out
+        );
+
+        for (const day of bookingDays) {
+            const used = occupancy[day] ?? 0;
+
+            if (used >= booking.room.total_rooms) {
+                return {
+                    error: `Cannot confirm — no availability on ${day}`,
+                };
+            }
+        }
+    }
+
     // Business rules
-    if (status === "checked_in" && (booking as any).status !== "confirmed") {
+    if (status === "checked_in" && booking.status !== "confirmed") {
         return { error: "Only confirmed bookings can be checked in" };
     }
 
-    if (status === "checked_out" && (booking as any).status !== "checked_in") {
+    if (status === "checked_out" && booking.status !== "checked_in") {
         return { error: "Guest must be checked in first" };
     }
 
     if (status === "cancelled") {
-        if ((booking as any).status === "checked_out") {
+        if (booking.status === "checked_out") {
             return { error: "Cannot cancel a completed booking" };
         }
     }
