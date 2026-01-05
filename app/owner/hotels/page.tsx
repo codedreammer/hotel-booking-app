@@ -66,9 +66,9 @@ export default async function OwnerHotels() {
                 My Hotels
               </h1>
             </div>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+            <Link href="/owner/dashboard/hotels/new" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
               Add New Hotel
-            </button>
+            </Link>
           </div>
         </div>
       </header>
@@ -83,9 +83,9 @@ export default async function OwnerHotels() {
             <p className="text-gray-500 dark:text-gray-400 mb-6">
               Get started by adding your first hotel property.
             </p>
-            <button className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700">
+            <Link href="/owner/dashboard/hotels/new" className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700">
               Add Your First Hotel
-            </button>
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

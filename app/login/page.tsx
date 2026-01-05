@@ -17,32 +17,36 @@ export default function LoginPage() {
     setError(null)
     setLoading(true)
     
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
-    
+
     if (error) {
       setError(error.message)
       setLoading(false)
       return
     }
-    
-    // Get user profile to determine role
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-      
-      // Role-based redirect
-      const redirectPath = profile?.role === 'owner' ? '/owner/dashboard' : '/'
-      
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      router.refresh()
-      router.push(redirectPath)
+
+    // 🔑 Fetch profile to determine role
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', data.user.id)
+      .single()
+
+    if (profileError) {
+      console.error(profileError)
+      router.push('/')
+      setLoading(false)
+      return
+    }
+
+    // ✅ Role-based redirect
+    if (profile.role === 'owner') {
+      router.push('/owner/dashboard')
+    } else {
+      router.push('/')
     }
     
     setLoading(false)

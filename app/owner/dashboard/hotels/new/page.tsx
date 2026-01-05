@@ -1,62 +1,161 @@
-import Link from "next/link"
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase/client'
 
 export default function AddHotelPage() {
+  const router = useRouter()
+
+  const [name, setName] = useState('')
+  const [city, setCity] = useState('')
+  const [address, setAddress] = useState('')
+  const [description, setDescription] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleCreateHotel = async () => {
+    setLoading(true)
+    setError(null)
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      setError('Not authenticated')
+      setLoading(false)
+      return
+    }
+
+    const { data, error } = await supabase
+      .from('hotels')
+      .insert({
+        name,
+        city,
+        address,
+        description,
+        owner_id: user.id,
+      })
+      .select('id')
+      .single()
+
+    if (error) {
+      console.error(error)
+      setError('Failed to create hotel')
+      setLoading(false)
+      return
+    }
+
+    // ✅ AUTO-REDIRECT TO ROOMS SETUP
+    router.push(`/owner/dashboard/hotels/${data.id}/rooms`)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+
+    if (!name || !city || !address) {
+      setError('Please fill in all required fields.')
+      return
+    }
+
+    await handleCreateHotel()
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black">
-      {/* Header */}
-      <header className="bg-white dark:bg-zinc-900 shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Link 
-                href="/owner/dashboard"
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              >
-                ← Dashboard
-              </Link>
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Add Your First Hotel
-              </h1>
-            </div>
-          </div>
+    <div className="max-w-2xl mx-auto px-4 py-10">
+      <h1 className="text-3xl font-bold text-white mb-2">
+        Add your first hotel
+      </h1>
+      <p className="text-gray-400 mb-8">
+        Tell guests about your property. You can edit details later.
+      </p>
+
+      <form
+        onSubmit={handleSubmit}
+        className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 space-y-6"
+      >
+        {/* Hotel Name */}
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">
+            Hotel Name *
+          </label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full rounded-lg bg-zinc-800 border border-zinc-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+            placeholder="Sunrise Residency"
+          />
         </div>
-      </header>
 
-      <main className="max-w-3xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow p-8">
-          <div className="text-center mb-8">
-            <div className="text-6xl mb-4">🏨</div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              Add Your First Hotel
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              Start building your hotel portfolio by adding your first property. 
-              You'll be able to manage rooms, pricing, and bookings once your hotel is set up.
-            </p>
-          </div>
-
-          {/* Placeholder for future hotel form */}
-          <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-12 text-center">
-            <div className="text-gray-400 text-4xl mb-4">📝</div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              Hotel Form Coming Soon
-            </h3>
-            <p className="text-gray-500 dark:text-gray-400">
-              The hotel creation form will be implemented here with fields for hotel details, 
-              location, amenities, and initial room setup.
-            </p>
-          </div>
-
-          <div className="mt-8 flex justify-center">
-            <Link
-              href="/owner/dashboard"
-              className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition-colors"
-            >
-              Back to Dashboard
-            </Link>
-          </div>
+        {/* City */}
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">
+            City *
+          </label>
+          <input
+            type="text"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            className="w-full rounded-lg bg-zinc-800 border border-zinc-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+            placeholder="Delhi"
+          />
         </div>
-      </main>
+
+        {/* Address */}
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">
+            Address *
+          </label>
+          <input
+            type="text"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            className="w-full rounded-lg bg-zinc-800 border border-zinc-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+            placeholder="123 MG Road"
+          />
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">
+            Description
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            className="w-full rounded-lg bg-zinc-800 border border-zinc-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+            placeholder="Describe your hotel, amenities, and highlights..."
+          />
+        </div>
+
+        {error && (
+          <div className="text-red-500 text-sm bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+            {error}
+          </div>
+        )}
+
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="px-4 py-2 rounded-lg bg-zinc-800 text-gray-300 hover:bg-zinc-700"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium disabled:opacity-50"
+          >
+            {loading ? 'Creating...' : 'Create Hotel'}
+          </button>
+        </div>
+      </form>
     </div>
   )
 }

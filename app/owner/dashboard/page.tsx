@@ -1,5 +1,6 @@
 import Link from "next/link"
 import LogoutButton from "@/components/LogoutButton"
+import OnboardingChecklist from "@/components/OnboardingChecklist"
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
@@ -41,6 +42,7 @@ async function getOwnerData() {
   
   return {
     user,
+    profile,
     hotelCount: hotels?.length || 0,
     totalBookings: bookings?.length || 0,
     activeBookings: bookings?.filter(b => b.status === 'confirmed').length || 0
@@ -48,7 +50,7 @@ async function getOwnerData() {
 }
 
 export default async function OwnerDashboard() {
-  const { user, hotelCount, totalBookings, activeBookings } = await getOwnerData()
+  const { user, profile, hotelCount, totalBookings, activeBookings } = await getOwnerData()
   
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black">
@@ -75,6 +77,9 @@ export default async function OwnerDashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {/* Onboarding Checklist */}
+        {profile?.role === 'owner' && <OnboardingChecklist />}
+        
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white dark:bg-zinc-800 overflow-hidden shadow rounded-lg">
@@ -144,9 +149,28 @@ export default async function OwnerDashboard() {
           </div>
         </div>
 
+        {/* Empty State for No Hotels */}
+        {hotelCount === 0 && (
+          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow p-8 text-center mb-6">
+            <div className="text-6xl mb-4">🏨</div>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              No hotels yet
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Get started by adding your first hotel property to begin managing bookings and rooms.
+            </p>
+            <Link
+              href="/owner/dashboard/hotels/new"
+              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Add Your First Hotel
+            </Link>
+          </div>
+        )}
+
         {/* Navigation Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Link href="/owner/analytics" className="group">
+          <Link href="/owner/dashboard/analytics" className="group">
             <div className="bg-white dark:bg-zinc-800 p-6 rounded-lg shadow hover:shadow-md transition-shadow">
               <div className="text-center">
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mx-auto mb-4">
@@ -162,7 +186,7 @@ export default async function OwnerDashboard() {
             </div>
           </Link>
 
-          <Link href="/owner/hotels" className="group">
+          <Link href="/owner/dashboard/hotels" className="group">
             <div className="bg-white dark:bg-zinc-800 p-6 rounded-lg shadow hover:shadow-md transition-shadow">
               <div className="text-center">
                 <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mx-auto mb-4">
@@ -178,23 +202,21 @@ export default async function OwnerDashboard() {
             </div>
           </Link>
 
-          <Link href="/owner/rooms" className="group">
-            <div className="bg-white dark:bg-zinc-800 p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <span className="text-purple-600 dark:text-purple-400 text-xl">🛏️</span>
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white group-hover:text-purple-600">
-                  Rooms
-                </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                  Manage room types and availability
-                </p>
+          <div className="bg-white dark:bg-zinc-800 p-6 rounded-lg shadow opacity-50">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <span className="text-purple-600 dark:text-purple-400 text-xl">🛏️</span>
               </div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                Rooms
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                Select a hotel to manage rooms
+              </p>
             </div>
-          </Link>
+          </div>
 
-          <Link href="/owner/bookings" className="group">
+          <Link href="/owner/dashboard/bookings" className="group">
             <div className="bg-white dark:bg-zinc-800 p-6 rounded-lg shadow hover:shadow-md transition-shadow">
               <div className="text-center">
                 <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mx-auto mb-4">

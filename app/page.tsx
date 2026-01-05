@@ -1,8 +1,10 @@
 import Image from "next/image"
 import LogoutButton from "@/components/LogoutButton"
+import Tooltip from "@/components/Tooltip"
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import Link from "next/link"
+import OwnerCTAButton from "@/components/OwnerCTAButton"
 
 async function getUser() {
   const cookieStore = await cookies()
@@ -49,10 +51,13 @@ export default async function Home() {
               />
             </div>
             <div className="flex items-center space-x-4">
+              {user?.role === 'guest' && (
+                <OwnerCTAButton />
+              )}
               {user?.role === 'owner' && (
                 <Link 
                   href="/owner/dashboard"
-                  className="text-blue-600 hover:text-blue-800 font-medium"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium"
                 >
                   Owner Dashboard
                 </Link>
