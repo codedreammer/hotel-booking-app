@@ -92,17 +92,20 @@ export default function HotelOverviewPage() {
           </div>
         </Link>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 opacity-50">
+        <Link
+          href={`/owner/dashboard/hotels/${hotelId}/edit`}
+          className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 hover:bg-zinc-800 transition-colors"
+        >
           <div className="text-center">
-            <div className="w-12 h-12 bg-gray-100 dark:bg-gray-900 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <span className="text-gray-600 dark:text-gray-400 text-xl">⚙️</span>
+            <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <span className="text-green-600 dark:text-green-400 text-xl">⚙️</span>
             </div>
             <h3 className="text-lg font-medium mb-2">Edit Hotel</h3>
             <p className="text-gray-400 text-sm">
-              Update hotel information (Coming soon)
+              Update hotel information and settings
             </p>
           </div>
-        </div>
+        </Link>
       </div>
     </div>
   )

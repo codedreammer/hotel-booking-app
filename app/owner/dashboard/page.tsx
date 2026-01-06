@@ -4,6 +4,7 @@ import OnboardingChecklist from "@/components/OnboardingChecklist"
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
+import { getTimeBasedGreeting } from "@/lib/utils/greeting"
 
 async function getOwnerData() {
   const cookieStore = await cookies()
@@ -23,7 +24,7 @@ async function getOwnerData() {
   
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, full_name')
     .eq('id', user.id)
     .single()
     
@@ -77,6 +78,16 @@ export default async function OwnerDashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {/* Personalized Greeting */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+            {getTimeBasedGreeting()}, {profile?.full_name || 'Owner'} 👋
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            Here's a quick overview of your hotel business today.
+          </p>
+        </div>
+
         {/* Onboarding Checklist */}
         {profile?.role === 'owner' && <OnboardingChecklist />}
         
@@ -169,7 +180,7 @@ export default async function OwnerDashboard() {
         )}
 
         {/* Navigation Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Link href="/owner/dashboard/analytics" className="group">
             <div className="bg-white dark:bg-zinc-800 p-6 rounded-lg shadow hover:shadow-md transition-shadow">
               <div className="text-center">
@@ -201,20 +212,6 @@ export default async function OwnerDashboard() {
               </div>
             </div>
           </Link>
-
-          <div className="bg-white dark:bg-zinc-800 p-6 rounded-lg shadow opacity-50">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <span className="text-purple-600 dark:text-purple-400 text-xl">🛏️</span>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                Rooms
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Select a hotel to manage rooms
-              </p>
-            </div>
-          </div>
 
           <Link href="/owner/dashboard/bookings" className="group">
             <div className="bg-white dark:bg-zinc-800 p-6 rounded-lg shadow hover:shadow-md transition-shadow">

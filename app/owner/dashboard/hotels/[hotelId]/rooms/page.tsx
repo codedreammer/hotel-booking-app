@@ -88,6 +88,7 @@ export default function RoomsPage() {
                 <th className="text-left px-4 py-3">Capacity</th>
                 <th className="text-left px-4 py-3">Total Rooms</th>
                 <th className="text-left px-4 py-3">Status</th>
+                <th className="text-left px-4 py-3">Actions</th>
               </tr>
             </thead>
 
@@ -115,6 +116,14 @@ export default function RoomsPage() {
                     ) : (
                       <span className="text-red-400">Inactive</span>
                     )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`/owner/dashboard/hotels/${hotelId}/rooms/${room.id}/edit`}
+                      className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm font-medium"
+                    >
+                      Edit
+                    </Link>
                   </td>
                 </tr>
               ))}
