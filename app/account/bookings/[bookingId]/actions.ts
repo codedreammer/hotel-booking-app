@@ -21,6 +21,7 @@ export async function cancelBookingAndRedirect(bookingId: string) {
     throw new Error("Booking not found")
   }
   
+  // Only guests can cancel their own bookings
   if (booking.user_id !== user.id) {
     throw new Error("Unauthorized")
   }
@@ -39,5 +40,6 @@ export async function cancelBookingAndRedirect(bookingId: string) {
   }
   
   revalidatePath("/account/bookings")
+  revalidatePath(`/account/bookings/${bookingId}`)
   redirect("/account/bookings")
 }
