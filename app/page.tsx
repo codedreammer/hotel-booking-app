@@ -51,26 +51,62 @@ export default async function Home() {
               />
             </div>
             <div className="flex items-center space-x-4">
-              {user?.role === 'guest' && (
-                <OwnerCTAButton />
-              )}
-              {user?.role === 'owner' && (
-                <Link 
-                  href="/owner/dashboard"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium"
-                >
-                  Owner Dashboard
-                </Link>
-              )}
-              {user ? (
-                <LogoutButton />
+              {!user ? (
+                // Unauthenticated: Login | List your property
+                <>
+                  <Link 
+                    href="/login"
+                    className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md font-medium"
+                  >
+                    Login
+                  </Link>
+                  <OwnerCTAButton />
+                </>
+              ) : user.role === 'guest' ? (
+                // Guest: My Account | Logout | List your property
+                <>
+                  <Link 
+                    href="/account"
+                    className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md font-medium"
+                  >
+                    My Account
+                  </Link>
+                  <LogoutButton />
+                  <Link 
+                    href="/owner/onboarding"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium"
+                  >
+                    List your property
+                  </Link>
+                </>
+              ) : user.role === 'owner' ? (
+                // Owner: My Account | Logout | Owner Dashboard
+                <>
+                  <Link 
+                    href="/account"
+                    className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md font-medium"
+                  >
+                    My Account
+                  </Link>
+                  <LogoutButton />
+                  <Link 
+                    href="/owner/dashboard"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium"
+                  >
+                    Owner Dashboard
+                  </Link>
+                </>
               ) : (
-                <Link 
-                  href="/login"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                >
-                  Login
-                </Link>
+                // Fallback for unknown role
+                <>
+                  <Link 
+                    href="/account"
+                    className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md font-medium"
+                  >
+                    My Account
+                  </Link>
+                  <LogoutButton />
+                </>
               )}
             </div>
           </div>
