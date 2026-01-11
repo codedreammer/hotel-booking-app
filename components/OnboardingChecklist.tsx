@@ -35,7 +35,7 @@ export default function OnboardingChecklist() {
   }, [isVisible, items])
 
   const toggleItem = (id: string) => {
-    setItems(prev => prev.map(item => 
+    setItems(prev => prev.map(item =>
       item.id === id ? { ...item, completed: !item.completed } : item
     ))
   }
@@ -46,19 +46,19 @@ export default function OnboardingChecklist() {
   if (!isVisible || isAllCompleted) return null
 
   return (
-    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6">
+    <div className="bg-blue-50 border border-blue-100 rounded-lg p-6 mb-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100">
+          <h3 className="text-lg font-semibold text-blue-900">
             Welcome! Complete your setup
           </h3>
-          <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+          <p className="text-sm text-blue-700 mt-1">
             {completedCount} of {items.length} steps completed
           </p>
         </div>
         <button
           onClick={() => setIsVisible(false)}
-          className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-200"
+          className="text-blue-500 hover:text-blue-700"
           aria-label="Dismiss checklist"
         >
           ✕
@@ -70,21 +70,19 @@ export default function OnboardingChecklist() {
           <div key={item.id} className="flex items-center space-x-3">
             <button
               onClick={() => toggleItem(item.id)}
-              className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                item.completed
+              className={`w-5 h-5 rounded border-2 flex items-center justify-center ${item.completed
                   ? 'bg-blue-600 border-blue-600 text-white'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-blue-500'
-              }`}
+                  : 'border-gray-300 hover:border-blue-500'
+                }`}
             >
               {item.completed && '✓'}
             </button>
             <Link
               href={item.href}
-              className={`flex-1 text-sm hover:text-blue-600 dark:hover:text-blue-400 ${
-                item.completed
-                  ? 'text-gray-500 dark:text-gray-400 line-through'
-                  : 'text-gray-900 dark:text-gray-100'
-              }`}
+              className={`flex-1 text-sm hover:text-blue-600 ${item.completed
+                  ? 'text-gray-500 line-through'
+                  : 'text-gray-900'
+                }`}
             >
               {item.title}
             </Link>
@@ -92,7 +90,7 @@ export default function OnboardingChecklist() {
         ))}
       </div>
 
-      <div className="mt-4 bg-blue-100 dark:bg-blue-900 rounded-full h-2">
+      <div className="mt-4 bg-blue-100 rounded-full h-2">
         <div
           className="bg-blue-600 h-2 rounded-full transition-all duration-300"
           style={{ width: `${(completedCount / items.length) * 100}%` }}

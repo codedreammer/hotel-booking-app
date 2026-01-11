@@ -1,44 +1,44 @@
-    "use server";
+"use server";
 
-    import { cookies } from "next/headers";
-    import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 
-    function getDatesBetween(start: string, end: string) {
-        const dates: string[] = [];
-        let current = new Date(start);
-        const last = new Date(end);
+function getDatesBetween(start: string, end: string) {
+    const dates: string[] = [];
+    let current = new Date(start);
+    const last = new Date(end);
 
-        while (current < last) {
-            dates.push(current.toISOString().split("T")[0]);
-            current.setDate(current.getDate() + 1);
-        }
-
-        return dates;
+    while (current < last) {
+        dates.push(current.toISOString().split("T")[0]);
+        current.setDate(current.getDate() + 1);
     }
 
-    async function getSupabase() {
+    return dates;
+}
+
+async function getSupabase() {
     const cookieStore = await cookies();
 
     return createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
-        cookies: {
-            getAll: () => cookieStore.getAll(),
-            setAll: (cookiesToSet) => {
-            cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-            );
+            cookies: {
+                getAll: () => cookieStore.getAll(),
+                setAll: (cookiesToSet) => {
+                    cookiesToSet.forEach(({ name, value, options }) =>
+                        cookieStore.set(name, value, options)
+                    );
+                },
             },
-        },
         }
     );
-    }
+}
 
-    /* ================================
-    FETCH OWNER BOOKINGS
-    ================================ */
-    export async function getOwnerBookings() {
+/* ================================
+FETCH OWNER BOOKINGS
+================================ */
+export async function getOwnerBookings() {
     const supabase = await getSupabase();
 
     const {
@@ -74,11 +74,11 @@
 
     const roomMap = new Map(
         rooms.map(r => [
-        r.id,
-        {
-            room_type: r.rooms_type,
-            hotel_name: hotelMap.get(r.hotel_id),
-        },
+            r.id,
+            {
+                room_type: r.rooms_type,
+                hotel_name: hotelMap.get(r.hotel_id),
+            },
         ])
     );
 
@@ -102,27 +102,27 @@
         const room = roomMap.get(b.room_id);
 
         return {
-        id: b.id,
-        check_in: b.check_in,
-        check_out: b.check_out,
-        status: b.status,
-        room: {
-            room_type: room?.room_type,
-            hotel: {
-            name: room?.hotel_name,
+            id: b.id,
+            check_in: b.check_in,
+            check_out: b.check_out,
+            status: b.status,
+            room: {
+                room_type: room?.room_type,
+                hotel: {
+                    name: room?.hotel_name,
+                },
             },
-        },
         };
     });
-    }
+}
 
-    /* ================================
-    UPDATE BOOKING STATUS
-    ================================ */
-    export async function updateBookingStatus(
+/* ================================
+UPDATE BOOKING STATUS
+================================ */
+export async function updateBookingStatus(
     bookingId: string,
     status: "confirmed" | "cancelled" | "checked_in" | "checked_out"
-    ) {
+) {
     const supabase = await getSupabase();
 
     const {
@@ -150,7 +150,12 @@
         .eq("id", bookingId)
         .single();
 
-    if (!booking || (booking.room as any).hotel.owner_id !== user.id) {
+    // Flatten logic with explicit casting to avoid TS errors with Supabase arrays
+    const bookingAny = booking as any;
+    const room = bookingAny?.room && Array.isArray(bookingAny.room) ? bookingAny.room[0] : bookingAny?.room;
+    const hotel = room?.hotel && Array.isArray(room.hotel) ? room.hotel[0] : room?.hotel;
+
+    if (!booking || !room || !hotel || hotel.owner_id !== user.id) {
         return { error: "Unauthorized" };
     }
 
@@ -159,7 +164,7 @@
         const { data: overlappingBookings } = await supabase
             .from("bookings")
             .select("id, check_in, check_out")
-            .eq("room_id", booking.room.id)
+            .eq("room_id", room.id)
             .in("status", ["confirmed", "checked_in"])
             .neq("id", bookingId);
 
@@ -180,7 +185,7 @@
         for (const day of bookingDays) {
             const used = occupancy[day] ?? 0;
 
-            if (used >= booking.room.total_rooms) {
+            if (used >= room.total_rooms) {
                 return {
                     error: `Cannot confirm — no availability on ${day}`,
                 };
@@ -209,4 +214,4 @@
         .eq("id", bookingId);
 
     return { success: true };
-    }
+}

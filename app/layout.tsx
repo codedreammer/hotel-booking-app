@@ -1,10 +1,13 @@
 import type { Metadata } from "next"
+import { Inter } from "next/font/google"
 import "./globals.css"
 import AuthProvider from "./providers/AuthProvider"
 
+const inter = Inter({ subsets: ["latin"] })
+
 export const metadata: Metadata = {
-  title: "Hotel Booking Platform",
-  description: "Book hotels easily",
+  title: "StaySafe – Verified Hotel Booking Platform",
+  description: "Book verified hotels with confidence and best price guarantee.",
 }
 
 export default function RootLayout({
@@ -14,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className={inter.className}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

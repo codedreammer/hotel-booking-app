@@ -27,13 +27,13 @@ interface ReceiptCardProps {
 
 function StatusBadge({ status }: { status: string }) {
   const styles = {
-    pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800",
-    confirmed: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 border border-blue-200 dark:border-blue-800",
-    checked_in: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 border border-green-200 dark:border-green-800",
-    checked_out: "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400 border border-gray-200 dark:border-gray-700",
-    cancelled: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400 border border-red-200 dark:border-red-800"
+    pending: "bg-yellow-50 text-yellow-700 border border-yellow-200",
+    confirmed: "bg-blue-50 text-blue-700 border border-blue-200",
+    checked_in: "bg-green-50 text-green-700 border border-green-200",
+    checked_out: "bg-gray-50 text-gray-700 border border-gray-200",
+    cancelled: "bg-red-50 text-red-700 border border-red-200"
   }
-  
+
   const labels = {
     pending: "Pending",
     confirmed: "Confirmed",
@@ -41,7 +41,7 @@ function StatusBadge({ status }: { status: string }) {
     checked_out: "Checked Out",
     cancelled: "Cancelled"
   }
-  
+
   return (
     <span className={`px-3 py-1 text-xs font-semibold rounded-full ${styles[status as keyof typeof styles] || styles.pending}`}>
       {labels[status as keyof typeof labels] || status}
@@ -62,13 +62,13 @@ export default function ReceiptCard({ booking, isGuest }: ReceiptCardProps) {
   const city = booking.rooms?.hotels?.city || ''
 
   return (
-    <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800 print-white-bg">
+    <div className="bg-white rounded-2xl shadow-xl shadow-blue-50 border border-gray-100 print-white-bg">
       {/* Header */}
-      <div className="text-center border-b border-gray-200 dark:border-zinc-700 p-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 print-black">
+      <div className="text-center border-b border-gray-100 p-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2 print-black">
           Booking Receipt
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 print-black">
+        <p className="text-sm text-gray-500 print-black">
           Booking ID: {booking.id}
         </p>
         <div className="mt-4">
@@ -79,21 +79,21 @@ export default function ReceiptCard({ booking, isGuest }: ReceiptCardProps) {
       <div className="p-8 space-y-8">
         {/* Hotel Information */}
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 print-black">
+          <h2 className="text-lg font-bold text-gray-900 mb-4 print-black">
             Hotel Information
           </h2>
-          <div className="bg-gray-50 dark:bg-zinc-800 rounded-lg p-4 print-white-bg border border-gray-200">
-            <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-1 print-black">
+          <div className="bg-gray-50 rounded-xl p-5 print-white-bg border border-gray-100">
+            <h3 className="font-bold text-xl text-gray-900 mb-1 print-black">
               {hotelName}
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-3 print-black">
+            <p className="text-gray-600 mb-3 print-black">
               {city}
             </p>
             <a
               href={`https://www.google.com/maps/search/${encodeURIComponent(`${hotelName} ${city}`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 text-sm font-medium"
+              className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-semibold hover:underline"
             >
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -106,13 +106,13 @@ export default function ReceiptCard({ booking, isGuest }: ReceiptCardProps) {
 
         {/* Guest Information */}
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 print-black">
+          <h2 className="text-lg font-bold text-gray-900 mb-4 print-black">
             Guest Information
           </h2>
-          <div className="bg-gray-50 dark:bg-zinc-800 rounded-lg p-4 print-white-bg border border-gray-200">
+          <div className="bg-gray-50 rounded-xl p-5 print-white-bg border border-gray-100">
             <div className="flex justify-between items-center">
-              <span className="text-gray-600 dark:text-gray-400 print-black">Guest Name</span>
-              <span className="font-medium text-gray-900 dark:text-white print-black">
+              <span className="text-gray-500 font-medium print-black">Guest Name</span>
+              <span className="font-bold text-gray-900 print-black">
                 {booking.profiles?.full_name || 'Guest'}
               </span>
             </div>
@@ -121,47 +121,47 @@ export default function ReceiptCard({ booking, isGuest }: ReceiptCardProps) {
 
         {/* Room & Stay Details */}
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 print-black">
+          <h2 className="text-lg font-bold text-gray-900 mb-4 print-black">
             Room & Stay Details
           </h2>
-          <div className="bg-gray-50 dark:bg-zinc-800 rounded-lg p-4 space-y-3 print-white-bg border border-gray-200">
+          <div className="bg-gray-50 rounded-xl p-5 space-y-3 print-white-bg border border-gray-100">
             <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400 print-black">Room Type</span>
-              <span className="font-medium text-gray-900 dark:text-white print-black">
+              <span className="text-gray-500 font-medium print-black">Room Type</span>
+              <span className="font-bold text-gray-900 print-black">
                 {booking.rooms?.rooms_type || 'Standard Room'}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400 print-black">Check-in Date</span>
-              <span className="font-medium text-gray-900 dark:text-white print-black">
-                {new Date(booking.check_in).toLocaleDateString('en-US', { 
+              <span className="text-gray-500 font-medium print-black">Check-in Date</span>
+              <span className="font-bold text-gray-900 print-black">
+                {new Date(booking.check_in).toLocaleDateString('en-US', {
                   weekday: 'short',
-                  year: 'numeric', 
-                  month: 'short', 
-                  day: 'numeric' 
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
                 })}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400 print-black">Check-out Date</span>
-              <span className="font-medium text-gray-900 dark:text-white print-black">
-                {new Date(booking.check_out).toLocaleDateString('en-US', { 
+              <span className="text-gray-500 font-medium print-black">Check-out Date</span>
+              <span className="font-bold text-gray-900 print-black">
+                {new Date(booking.check_out).toLocaleDateString('en-US', {
                   weekday: 'short',
-                  year: 'numeric', 
-                  month: 'short', 
-                  day: 'numeric' 
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
                 })}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400 print-black">Number of Nights</span>
-              <span className="font-medium text-gray-900 dark:text-white print-black">
+              <span className="text-gray-500 font-medium print-black">Number of Nights</span>
+              <span className="font-bold text-gray-900 print-black">
                 {nights} {nights === 1 ? 'night' : 'nights'}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400 print-black">Booking Status</span>
-              <span className="font-medium text-gray-900 dark:text-white print-black">
+              <span className="text-gray-500 font-medium print-black">Booking Status</span>
+              <span className="font-bold text-gray-900 print-black">
                 {booking.status.charAt(0).toUpperCase() + booking.status.slice(1).replace('_', ' ')}
               </span>
             </div>
@@ -171,16 +171,16 @@ export default function ReceiptCard({ booking, isGuest }: ReceiptCardProps) {
         {/* Payment Summary */}
         {booking.total_price && (
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 print-black">
+            <h2 className="text-lg font-bold text-gray-900 mb-4 print-black">
               Payment Summary
             </h2>
-            <div className="border-t border-b border-gray-200 dark:border-zinc-700 py-4">
+            <div className="border-t border-b border-gray-100 py-6">
               <div className="flex justify-between items-center">
-                <span className="text-xl font-semibold text-gray-900 dark:text-white print-black">
+                <span className="text-xl font-bold text-gray-900 print-black">
                   Total Price
                 </span>
-                <span className="text-2xl font-bold text-gray-900 dark:text-white print-black">
-                  ${booking.total_price}
+                <span className="text-3xl font-bold text-blue-600 print-black">
+                  ₹{booking.total_price}
                 </span>
               </div>
             </div>

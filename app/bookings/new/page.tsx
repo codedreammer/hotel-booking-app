@@ -1,59 +1,71 @@
-    "use client";
+import Header from "@/components/Header";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import BookingForm from "./BookingForm";
 
-    import { useState } from "react";
-    import { createBooking } from "@/app/actions/createBooking";
-    import { useSearchParams, useRouter } from "next/navigation";
+async function getUser() {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                getAll: () => cookieStore.getAll(),
+                setAll: () => { },
+            },
+        }
+    );
 
-    export default function NewBookingPage() {
-    const params = useSearchParams();
-    const router = useRouter();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
 
-    const roomId = params.get("room_id");
-    const checkIn = params.get("check_in");
-    const checkOut = params.get("check_out");
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    return { ...user, role: profile?.role };
+}
+
+export default async function NewBookingPage({
+    searchParams,
+}: {
+    searchParams: Promise<{
+        room_id?: string;
+        check_in?: string;
+        check_out?: string;
+    }>;
+}) {
+    const params = await searchParams;
+    const user = await getUser();
+
+    const roomId = params.room_id;
+    const checkIn = params.check_in;
+    const checkOut = params.check_out;
 
     if (!roomId || !checkIn || !checkOut) {
-        return <p className="p-6 text-red-400">Invalid booking request</p>;
-    }
-
-    async function handleConfirm() {
-        setLoading(true);
-        setError(null);
-
-        const res = await createBooking(roomId!, checkIn!, checkOut!);
-
-        if (res?.error) {
-        setError(res.error);
-        setLoading(false);
-        } else {
-        router.push("/bookings");
-        }
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <Header user={user} />
+                <div className="p-8 text-center text-red-500">
+                    Invalid booking request. Missing parameters.
+                </div>
+            </div>
+        );
     }
 
     return (
-        <div className="p-6 max-w-md mx-auto">
-        <h1 className="text-2xl font-semibold mb-4">
-            Confirm Booking
-        </h1>
+        <div className="min-h-screen bg-gray-50 font-sans">
+            <Header user={user} />
 
-        <p className="mb-4">
-            {checkIn} → {checkOut}
-        </p>
-
-        {error && (
-            <p className="text-red-400 mb-3">{error}</p>
-        )}
-
-        <button
-            onClick={handleConfirm}
-            disabled={loading}
-            className="bg-blue-600 px-4 py-2 rounded w-full"
-        >
-            {loading ? "Booking..." : "Confirm Booking"}
-        </button>
+            <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <BookingForm
+                    roomId={roomId}
+                    checkIn={checkIn}
+                    checkOut={checkOut}
+                />
+            </main>
         </div>
     );
-    }
+}

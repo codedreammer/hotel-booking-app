@@ -6,13 +6,13 @@ import { redirect } from "next/navigation"
 
 export async function updateProfile(formData: FormData) {
   const supabase = await getSupabaseServerClient()
-  
+
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/login")
-  
+
   const fullName = formData.get("full_name") as string
   const phone = formData.get("phone") as string
-  
+
   const { error } = await supabase
     .from('profiles')
     .update({
@@ -20,11 +20,10 @@ export async function updateProfile(formData: FormData) {
       phone: phone || null,
     })
     .eq('id', user.id)
-  
+
   if (error) {
     throw new Error("Failed to update profile")
   }
-  
+
   revalidatePath("/account/profile")
-  return { success: true }
 }

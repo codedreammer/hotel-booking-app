@@ -1,12 +1,13 @@
-    import { cookies } from "next/headers"
-    import { createServerClient } from "@supabase/ssr"
-    import RoomEditForm from "./room-edit-form"
+import { cookies } from "next/headers"
+import { createServerClient } from "@supabase/ssr"
+import Link from "next/link"
+import RoomEditForm from "./room-edit-form"
 
-    export default async function EditRoomPage({
+export default async function EditRoomPage({
     params,
-    }: {
+}: {
     params: Promise<{ roomId: string }>
-    }) {
+}) {
     const { roomId } = await params
 
     const cookieStore = await cookies()
@@ -14,17 +15,16 @@
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
-        cookies: {
-            get: (name) => cookieStore.get(name)?.value,
-        },
+            cookies: {
+                getAll: () => cookieStore.getAll(),
+                setAll: () => { },
+            },
         }
     )
 
     const {
         data: { user },
     } = await supabase.auth.getUser()
-
-    console.log("SERVER USER:", user)
 
     if (!user) {
         return <p className="p-6">Unauthorized</p>
@@ -55,16 +55,28 @@
         return <p className="p-6">Room not found</p>
     }
 
-    if (!rooms.hotels || rooms.hotels.owner_id !== user.id) {
+    const hotel = Array.isArray(rooms.hotels) ? rooms.hotels[0] : rooms.hotels;
+
+    if (!hotel || hotel.owner_id !== user.id) {
         return <p className="p-6">Unauthorized</p>
     }
 
     return (
-        <div className="max-w-xl mx-auto p-6">
-        <h1 className="text-xl font-bold mb-4">
-            Edit Room: {rooms.rooms_type}
-        </h1>
-        <RoomEditForm room={rooms} />
+        <div className="min-h-screen bg-gray-50 font-sans p-6">
+            <div className="max-w-2xl mx-auto">
+                <div className="mb-6">
+                    <Link href="/owner/dashboard" className="text-gray-500 hover:text-gray-900 font-medium text-sm">
+                        ← Back to Dashboard
+                    </Link>
+                </div>
+
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-6">
+                        Edit Room: <span className="text-blue-600">{rooms.rooms_type}</span>
+                    </h1>
+                    <RoomEditForm room={rooms} />
+                </div>
+            </div>
         </div>
     )
-    }
+}

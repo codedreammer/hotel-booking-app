@@ -23,7 +23,7 @@ export default function CancelBookingButton({ bookingId }: CancelBookingButtonPr
     <button
       onClick={handleCancel}
       disabled={isPending}
-      className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+      className="text-red-600 hover:text-red-700 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition hover:underline"
     >
       {isPending ? 'Cancelling...' : 'Cancel Booking'}
     </button>

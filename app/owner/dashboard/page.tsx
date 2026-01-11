@@ -14,50 +14,50 @@ async function getOwnerData() {
     {
       cookies: {
         getAll: () => cookieStore.getAll(),
-        setAll: () => {},
+        setAll: () => { },
       },
     }
   )
-  
+
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
-  
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('role, full_name')
     .eq('id', user.id)
     .single()
-    
+
   if (profile?.role !== 'owner') redirect('/')
-  
+
   // Get hotels owned by this user
   const { data: hotels } = await supabase
     .from('hotels')
     .select('id')
     .eq('owner_id', user.id)
-  
+
   const hotelIds = hotels?.map(h => h.id) || []
-  
+
   // Get all bookings for owner's hotels
   const { data: bookings } = await supabase
     .from('bookings')
     .select('id, status, check_in, check_out')
     .in('hotel_id', hotelIds)
-  
+
   // Calculate context data
   const today = new Date().toISOString().split('T')[0]
-  const todayCheckIns = bookings?.filter(b => 
+  const todayCheckIns = bookings?.filter(b =>
     b.check_in === today && b.status === 'confirmed'
   ).length || 0
-  
-  const activeBookings = bookings?.filter(b => 
+
+  const activeBookings = bookings?.filter(b =>
     ['confirmed', 'checked_in'].includes(b.status)
   ).length || 0
-  
-  const pendingBookings = bookings?.filter(b => 
+
+  const pendingBookings = bookings?.filter(b =>
     b.status === 'pending'
   ).length || 0
-  
+
   return {
     user,
     profile,
@@ -91,7 +91,7 @@ function getContextMessage(
 
 export default async function OwnerDashboard() {
   const { user, profile, hotelCount, totalBookings, activeBookings, todayCheckIns, pendingBookings } = await getOwnerData()
-  
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black">
       {/* Header */}
@@ -104,7 +104,7 @@ export default async function OwnerDashboard() {
               </h1>
             </div>
             <div className="flex items-center space-x-4">
-              <Link 
+              <Link
                 href="/"
                 className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               >
@@ -112,28 +112,27 @@ export default async function OwnerDashboard() {
               </Link>
               <Link
                 href="/owner/dashboard/bookings"
-                className={`relative p-2 rounded-full transition-all ${
-                  pendingBookings > 0
+                className={`relative p-2 rounded-full transition-all ${pendingBookings > 0
                     ? 'text-yellow-500 bg-yellow-100 dark:bg-yellow animate-pulse'
                     : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                }`}
+                  }`}
                 title={`${pendingBookings} pending booking${pendingBookings === 1 ? '' : 's'}`}
               >
                 {/* Bell Icon */}
                 <svg
-  xmlns="http://www.w3.org/2000/svg"
-  fill="none"
-  viewBox="0 0 24 24"
-  strokeWidth={1.8}
-  stroke="currentColor"
-  className="w-6 h-6"
->
-  <path
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    d="M14.857 17.082A23.848 23.848 0 0112 17.25c-.967 0-1.91-.057-2.857-.168m5.714 0a3 3 0 11-5.714 0m5.714 0a24.255 24.255 0 003.857-1.31A8.967 8.967 0 0118 9.75V9a6 6 0 10-12 0v.75a8.967 8.967 0 01-1.714 5.022 24.255 24.255 0 003.857 1.31"
-  />
-</svg>
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.8}
+                  stroke="currentColor"
+                  className="w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M14.857 17.082A23.848 23.848 0 0112 17.25c-.967 0-1.91-.057-2.857-.168m5.714 0a3 3 0 11-5.714 0m5.714 0a24.255 24.255 0 003.857-1.31A8.967 8.967 0 0118 9.75V9a6 6 0 10-12 0v.75a8.967 8.967 0 01-1.714 5.022 24.255 24.255 0 003.857 1.31"
+                  />
+                </svg>
 
                 {/* Notification Badge */}
                 {pendingBookings > 0 && (
@@ -161,67 +160,25 @@ export default async function OwnerDashboard() {
 
         {/* Onboarding Checklist */}
         {profile?.role === 'owner' && <OnboardingChecklist />}
-        
+
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white dark:bg-zinc-800 overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                    <span className="text-white font-bold">H</span>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                      Total Hotels
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900 dark:text-white">
-                      {hotelCount}
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
-          <div className="bg-white dark:bg-zinc-800 overflow-hidden shadow rounded-lg">
+          {/* Total Bookings */}
+          <div className="bg-white dark:bg-zinc-800 overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow">
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
-                    <span className="text-white font-bold">B</span>
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <span className="text-blue-600 text-xl font-bold">📅</span>
                   </div>
                 </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                      Active Bookings
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900 dark:text-white">
-                      {activeBookings}
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-zinc-800 overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
-                    <span className="text-white font-bold">T</span>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
+                <div className="ml-4 w-0 flex-1">
                   <dl>
                     <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
                       Total Bookings
                     </dt>
-                    <dd className="text-lg font-medium text-gray-900 dark:text-white">
+                    <dd className="text-xl font-bold text-gray-900 dark:text-white">
                       {totalBookings}
                     </dd>
                   </dl>
@@ -229,6 +186,76 @@ export default async function OwnerDashboard() {
               </div>
             </div>
           </div>
+
+          {/* Pending Requests */}
+          <div className="bg-white dark:bg-zinc-800 overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow">
+            <div className="p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <span className="text-yellow-600 text-xl font-bold">⏳</span>
+                  </div>
+                </div>
+                <div className="ml-4 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                      Pending Requests
+                    </dt>
+                    <dd className="text-xl font-bold text-gray-900 dark:text-white">
+                      {pendingBookings}
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Revenue (Mocked) */}
+          <div className="bg-white dark:bg-zinc-800 overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow">
+            <div className="p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <span className="text-green-600 text-xl font-bold">₹</span>
+                  </div>
+                </div>
+                <div className="ml-4 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                      Total Revenue
+                    </dt>
+                    <dd className="text-xl font-bold text-gray-900 dark:text-white">
+                      ₹{(totalBookings * 12500).toLocaleString()}
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Occupancy Rate (Mocked) */}
+          <div className="bg-white dark:bg-zinc-800 overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow">
+            <div className="p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <span className="text-purple-600 text-xl font-bold">📈</span>
+                  </div>
+                </div>
+                <div className="ml-4 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                      Occupancy Rate
+                    </dt>
+                    <dd className="text-xl font-bold text-gray-900 dark:text-white">
+                      {hotelCount > 0 ? '78%' : '0%'}
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         {/* Empty State for No Hotels */}
