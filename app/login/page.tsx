@@ -73,10 +73,10 @@ export default function LoginPage() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80"
+          src="https://unsplash.com/photos/people-in-swimming-pool-near-beige-concrete-building-during-daytime-fszW22FEp4A"
           alt="Hotel Background"
           fill
-          className="object-cover brightness-50 blur-sm scale-105"
+          className="object-cover brightness-90 blur-sm scale-100"
           priority
         />
       </div>
