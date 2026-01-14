@@ -73,7 +73,7 @@ export default function LoginPage() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://unsplash.com/photos/people-in-swimming-pool-near-beige-concrete-building-during-daytime-fszW22FEp4A"
+          src="https://plus.unsplash.com/premium_photo-1661963050879-c6abd84f0261?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt="Hotel Background"
           fill
           className="object-cover brightness-90 blur-sm scale-100"

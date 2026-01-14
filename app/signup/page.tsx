@@ -80,10 +80,10 @@ export default function SignupPage() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://unsplash.com/photos/a-group-of-boats-floating-on-top-of-a-body-of-water-ku-1XhdPqJ4"
+          src="https://plus.unsplash.com/premium_photo-1697730288821-62c119fb7c5d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt="Luxury Hotel"
           fill
-          className="object-cover brightness-90 blur-sm scale-100"
+          className="object-cover brightness-90 blur-sm scale-105"
           priority
         />
       </div>
