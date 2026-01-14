@@ -1,5 +1,6 @@
 import { getHotelsByCity } from "./actions";
 import Header from "@/components/Header"
+import AnimatedBackground from "@/components/AnimatedBackground"
 import SearchForm from "@/components/SearchForm"
 import FilterSidebar from "@/components/FilterSidebar"
 import HotelCard, { HotelWithMeta } from "@/components/HotelCard"
@@ -76,11 +77,12 @@ export default async function HotelsPage({
   }));
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] font-sans relative overflow-hidden text-gray-900">
+      <AnimatedBackground src="https://i.pinimg.com/736x/9a/9f/19/9a9f1912a9bef60c826180489a081fa7.jpg" />
       <Header user={user} />
 
       {/* Top Search Section */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-40 bg-white/80 backdrop-blur-md">
+      <div className="bg-white/80 border-b border-gray-100 sticky top-0 z-40 backdrop-blur-md relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <SearchForm
             initialCity={city}
@@ -92,7 +94,7 @@ export default async function HotelsPage({
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col lg:flex-row gap-8">
 
           {/* Left Sidebar (Filters) */}
