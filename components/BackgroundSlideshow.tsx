@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react"
 
 const IMAGES = [
-    "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=3540&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1571896349842-6e5a51335022?q=80&w=3540&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=3540&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=3525&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1671711706325-f0dc59f16d40?q=80&w=1603&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "https://images.unsplash.com/photo-1744807818642-60ad9660dc11?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "https://images.unsplash.com/photo-1724947053227-2335bf21d0ae?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "https://images.unsplash.com/photo-1629181486313-ac8cdfc7937c?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+
 ]
 
 export default function BackgroundSlideshow() {
@@ -29,7 +30,7 @@ export default function BackgroundSlideshow() {
                         }`}
                 >
                     {/* Overlay for better text readability */}
-                    <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-10" />
+                    <div className="absolute inset-0 bg-white/30 backdrop-blur-sm z-10" />
 
                     <img
                         src={src}
@@ -40,13 +41,13 @@ export default function BackgroundSlideshow() {
             ))}
             <style jsx global>{`
         @keyframes pan {
-          0% { transform: scale(1.1); }
-          100% { transform: scale(1.0); }
-        }
-        .animate-pan {
-          animation: pan 10s ease-out infinite alternate;
-        }
-      `}</style>
-        </div>
-    )
-}
+            0% { transform: scale(1.1); }
+            100% { transform: scale(1.0); }
+            }
+            .animate-pan {
+            animation: pan 10s ease-out infinite alternate;
+            }
+        `}</style>
+            </div>
+        )
+    }

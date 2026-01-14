@@ -54,8 +54,8 @@ export default async function Home() {
           </div>
 
           <nav className="flex items-center space-x-6">
-            <Link href="/" className="text-gray-700 hover:text-blue-600 font-medium">Home</Link>
-            <Link href="/hotels" className="text-gray-700 hover:text-blue-600 font-medium">Search Hotels</Link>
+            <Link href="/" className="text-gray-900 hover:text-blue-600 font-medium">Home</Link>
+            <Link href="/hotels" className="text-gray-900 hover:text-blue-600 font-medium">Search Hotels</Link>
 
             {!user ? (
               <>
@@ -71,7 +71,7 @@ export default async function Home() {
               </>
             ) : (
               <>
-                <Link href="/account" className="text-gray-700 hover:text-blue-600 font-medium">
+                <Link href="/account" className="text-gray-900 hover:text-blue-700 font-medium">
                   My Account
                 </Link>
                 {user.role === 'owner' ? (
@@ -96,7 +96,7 @@ export default async function Home() {
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
             Find Your Perfect <span className="text-blue-600">Safe Stay</span>
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-900 max-w-2xl mx-auto">
             Discover verified hotels with the best prices. Book with confidence knowing every property meets our safety standards.
           </p>
         </div>
@@ -113,7 +113,7 @@ export default async function Home() {
               </svg>
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">Verified Hotels</h3>
-            <p className="text-gray-500 leading-relaxed">Every property is verified for quality and safety standards.</p>
+            <p className="text-gray-1000 leading-relaxed">Every property is verified for quality and safety standards.</p>
           </div>
           <div>
             <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600">
@@ -122,7 +122,7 @@ export default async function Home() {
               </svg>
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">Best Price Guarantee</h3>
-            <p className="text-gray-500 leading-relaxed">Find a lower price? We'll match it and give you 10% off.</p>
+            <p className="text-gray-1000 leading-relaxed">Find a lower price? We'll match it and give you 10% off.</p>
           </div>
           <div>
             <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600">
@@ -131,7 +131,7 @@ export default async function Home() {
               </svg>
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">24/7 Support</h3>
-            <p className="text-gray-500 leading-relaxed">Round-the-clock customer support for any issues anytime.</p>
+            <p className="text-gray-1000 leading-relaxed">Round-the-clock customer support for any issues anytime.</p>
           </div>
         </div>
 
