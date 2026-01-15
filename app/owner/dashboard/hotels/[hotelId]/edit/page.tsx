@@ -20,7 +20,7 @@ export default async function EditHotelPage({
 
   const { data: hotel, error } = await supabase
     .from('hotels')
-    .select('id, name, city, description, star_rating')
+    .select('id, name, city, description, star_rating, image_url')
     .eq('id', hotelId)
     .single()
 

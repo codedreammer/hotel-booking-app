@@ -14,18 +14,21 @@ export default function ActionButton({
   danger?: boolean;
 }) {
   const handleClick = async () => {
-    await updateBookingStatus(bookingId, status);
-    window.location.reload();
+    try {
+      await updateBookingStatus(bookingId, status);
+      window.location.reload();
+    } catch (error) {
+      console.error("Failed to update status:", error);
+    }
   };
 
   return (
     <button
       onClick={handleClick}
-      className={`px-3 py-1 text-sm rounded ${
-        danger
-          ? "bg-red-600 hover:bg-red-700 text-white"
-          : "bg-blue-600 hover:bg-blue-700 text-white"
-      }`}
+      className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all active:scale-95 ${danger
+          ? "bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/30 dark:text-rose-400 dark:hover:bg-rose-950/50"
+          : "bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-950/30 dark:text-blue-400 dark:hover:bg-blue-950/50"
+        }`}
     >
       {label}
     </button>

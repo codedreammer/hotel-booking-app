@@ -27,7 +27,7 @@ export async function getHotelsByCity(city: string) {
 
     const { data, error } = await supabase
         .from("hotels")
-        .select("id, name, city, description, star_rating")
+        .select("id, name, city, description, star_rating, image_url")
         .ilike("city", `%${city}%`)
         .order("name");
 

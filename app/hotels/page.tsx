@@ -71,10 +71,14 @@ export default async function HotelsPage({
     };
   };
 
-  const hotels: HotelWithMeta[] = hotelsData.map((h: any) => ({
-    ...h,
-    ...getHotelMeta(h.id)
-  }));
+  const hotels: HotelWithMeta[] = hotelsData.map((h: any) => {
+    const meta = getHotelMeta(h.id);
+    return {
+      ...h,
+      ...meta,
+      image: h.image_url || meta.image
+    };
+  });
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans relative overflow-hidden text-gray-900">

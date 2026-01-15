@@ -9,6 +9,7 @@ type Hotel = {
   name: string
   city: string
   created_at: string
+  image_url: string | null
 }
 
 export default function HotelsPage() {
@@ -22,7 +23,7 @@ export default function HotelsPage() {
 
       const { data, error } = await supabase
         .from('hotels')
-        .select('id, name, city, created_at')
+        .select('id, name, city, created_at, image_url')
         .eq('owner_id', user.id)
         .order('created_at', { ascending: false })
 
@@ -37,6 +38,7 @@ export default function HotelsPage() {
   }, [])
 
   if (loading) {
+    // ... existing loading state ...
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 animate-pulse">
         <div className="mb-10">
@@ -139,8 +141,12 @@ export default function HotelsPage() {
                 className="group bg-white/[0.02] hover:bg-white/[0.04] backdrop-blur-3xl border border-white/5 hover:border-cyan-500/30 rounded-[2.5rem] p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-8 transition-all duration-500"
               >
                 <div className="flex items-start gap-8">
-                  <div className="hidden sm:flex w-24 h-24 bg-white/5 rounded-3xl items-center justify-center text-4xl group-hover:scale-105 group-hover:bg-cyan-500/10 transition-all duration-500 shadow-inner border border-white/5">
-                    🏢
+                  <div className="hidden sm:flex w-24 h-24 bg-white/5 rounded-3xl items-center justify-center overflow-hidden group-hover:scale-105 group-hover:bg-cyan-500/10 transition-all duration-500 shadow-inner border border-white/5">
+                    {hotel.image_url ? (
+                      <img src={hotel.image_url} alt={hotel.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-4xl text-white/20">🏢</span>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-4 flex-wrap">

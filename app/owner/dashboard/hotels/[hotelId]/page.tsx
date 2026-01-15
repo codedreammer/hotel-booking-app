@@ -10,6 +10,8 @@ type Hotel = {
   name: string
   city: string
   description: string | null
+  star_rating: number | null
+  image_url: string | null
 }
 
 export default function HotelOverviewPage() {
@@ -17,24 +19,70 @@ export default function HotelOverviewPage() {
   const hotelId = params.hotelId as string
 
   const [hotel, setHotel] = useState<Hotel | null>(null)
+  const [stats, setStats] = useState({
+    totalRooms: 0,
+    activeBookings: 0,
+    checkIns: 0,
+    occupancyRate: 0
+  })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchHotel = async () => {
-      const { data, error } = await supabase
+    const fetchData = async () => {
+      // 1. Fetch Hotel Details
+      const { data: hotelData, error: hotelError } = await supabase
         .from('hotels')
-        .select('id, name, city, description')
+        .select('*')
         .eq('id', hotelId)
         .single()
 
-      if (!error && data) {
-        setHotel(data)
+      if (!hotelError && hotelData) {
+        setHotel(hotelData)
       }
+
+      // 2. Fetch Rooms to count total capacity and get IDs for bookings
+      const { data: roomsData } = await supabase
+        .from('rooms')
+        .select('id, total_rooms')
+        .eq('hotel_id', hotelId)
+
+      const totalRooms = roomsData?.reduce((acc, row) => acc + (row.total_rooms || 0), 0) || 0
+      const roomIds = roomsData?.map(r => r.id) || []
+
+      // 3. Fetch Bookings for Active and Check-ins
+      const today = new Date().toISOString().split('T')[0]
+      let activeBookings = 0
+      let checkIns = 0
+
+      if (roomIds.length > 0) {
+        const { data: bookingsData } = await supabase
+          .from('bookings')
+          .select('status, check_in, check_out')
+          .in('room_id', roomIds)
+
+        activeBookings = bookingsData?.filter(b =>
+          (b.status === 'confirmed' || b.status === 'checked_in') &&
+          b.check_out >= today
+        ).length || 0
+
+        checkIns = bookingsData?.filter(b =>
+          b.status === 'checked_in'
+        ).length || 0
+      }
+
+      const occupancyRate = totalRooms > 0 ? Math.round((activeBookings / totalRooms) * 100) : 0
+
+      setStats({
+        totalRooms,
+        activeBookings,
+        checkIns,
+        occupancyRate
+      })
 
       setLoading(false)
     }
 
-    fetchHotel()
+    fetchData()
   }, [hotelId])
 
   if (loading) {
@@ -69,7 +117,7 @@ export default function HotelOverviewPage() {
       <div className="relative h-[60vh] min-h-[500px] w-full overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1601504410148-0c269aafd95c"
+            src={hotel.image_url || "https://images.unsplash.com/photo-1601504410148-0c269aafd95c"}
             alt={hotel.name}
             className="w-full h-full object-cover animate-[slowZoom_20s_infinite_alternate]"
           />
@@ -114,7 +162,7 @@ export default function HotelOverviewPage() {
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 mr-2 text-amber-500">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.563.563 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.385a.563.563 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.499Z" />
                 </svg>
-                4.8 Rating
+                {hotel.star_rating || 4.8} Rating
               </div>
             </div>
             {hotel.description && (
@@ -130,10 +178,10 @@ export default function HotelOverviewPage() {
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
           {[
-            { label: 'Total Rooms', value: '—', icon: '🏨', color: 'from-blue-600/20' },
-            { label: 'Active Bookings', value: '—', icon: '📅', color: 'from-emerald-600/20' },
-            { label: 'Check-ins', value: '—', icon: '🔑', color: 'from-purple-600/20' },
-            { label: 'Occupancy Rate', value: '—%', icon: '📈', color: 'from-cyan-600/20' },
+            { label: 'Total Rooms', value: stats.totalRooms.toString(), icon: '🏨', color: 'from-blue-600/20' },
+            { label: 'Active Bookings', value: stats.activeBookings.toString(), icon: '📅', color: 'from-emerald-600/20' },
+            { label: 'Check-ins', value: stats.checkIns.toString(), icon: '🔑', color: 'from-purple-600/20' },
+            { label: 'Occupancy Rate', value: `${stats.occupancyRate}%`, icon: '📈', color: 'from-cyan-600/20' },
           ].map((stat, i) => (
             <div key={i} className={`bg-zinc-900/80 backdrop-blur-2xl border border-white/5 p-6 rounded-3xl group hover:border-white/10 transition-all`}>
               <div className="flex items-center justify-between mb-4">

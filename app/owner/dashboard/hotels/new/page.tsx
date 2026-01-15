@@ -12,44 +12,112 @@ export default function AddHotelPage() {
   const [city, setCity] = useState('')
   const [address, setAddress] = useState('')
   const [description, setDescription] = useState('')
+  const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length > 0) {
+      setImageFiles(prev => [...prev, ...files])
+
+      files.forEach(file => {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setImagePreviews(prev => [...prev, reader.result as string])
+        }
+        reader.readAsDataURL(file)
+      })
+    }
+  }
 
   const handleCreateHotel = async () => {
     setLoading(true)
     setError(null)
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
-    if (!user) {
-      setError('Not authenticated')
+      if (!user) {
+        setError('Not authenticated')
+        setLoading(false)
+        return
+      }
+
+      // 1. Create the hotel
+      const { data: hotelData, error: hotelError } = await supabase
+        .from('hotels')
+        .insert({
+          name,
+          city,
+          address,
+          description,
+          owner_id: user.id,
+        })
+        .select('id')
+        .single()
+
+      if (hotelError) throw hotelError
+
+      const hotelId = hotelData.id
+
+      // 2. Upload images and associate them
+      if (imageFiles.length > 0) {
+        const uploadPromises = imageFiles.map(async (file, index) => {
+          const fileExt = file.name.split('.').pop()
+          const fileName = `${Math.random()}.${fileExt}`
+          const filePath = `${hotelId}/${fileName}`
+
+          const { error: uploadError } = await supabase.storage
+            .from('rooms') // Reusing 'rooms' bucket as its the standard for images in this project
+            .upload(filePath, file)
+
+          if (uploadError) throw uploadError
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('rooms')
+            .getPublicUrl(filePath)
+
+          // Associate image with hotel
+          // We'll try to update the primary image_url on the hotel for the first image
+          if (index === 0) {
+            await supabase
+              .from('hotels')
+              .update({ image_url: publicUrl })
+              .eq('id', hotelId)
+          }
+
+          // Also insert into hotel_images if it exists, matching the room_images pattern
+          // If it doesn't exist, we fallback gracefully to just the primary image_url
+          const { error: galleryError } = await supabase
+            .from('hotel_images')
+            .insert({
+              hotel_id: hotelId,
+              image_url: publicUrl
+            })
+
+          if (galleryError) {
+            console.warn("Could not insert into hotel_images, table might not exist:", galleryError.message)
+          }
+
+          return publicUrl
+        })
+
+        await Promise.all(uploadPromises)
+      }
+
+      // ✅ AUTO-REDIRECT TO ROOMS SETUP
+      router.push(`/owner/dashboard/hotels/${hotelId}/rooms`)
+      router.refresh()
+    } catch (err: any) {
+      console.error(err)
+      setError(err.message || 'Failed to create hotel')
+    } finally {
       setLoading(false)
-      return
     }
-
-    const { data, error } = await supabase
-      .from('hotels')
-      .insert({
-        name,
-        city,
-        address,
-        description,
-        owner_id: user.id,
-      })
-      .select('id')
-      .single()
-
-    if (error) {
-      console.error(error)
-      setError('Failed to create hotel')
-      setLoading(false)
-      return
-    }
-
-    // ✅ AUTO-REDIRECT TO ROOMS SETUP
-    router.push(`/owner/dashboard/hotels/${data.id}/rooms`)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -197,6 +265,75 @@ export default function AddHotelPage() {
                   className="w-full rounded-3xl bg-white/5 border border-white/5 hover:border-white/10 focus:border-cyan-500/40 focus:bg-white/10 pl-14 pr-5 py-5 text-white placeholder:text-white/10 focus:outline-none focus:ring-4 focus:ring-cyan-500/5 transition-all duration-500 resize-none"
                   placeholder="Tell the unique story of your property..."
                 />
+              </div>
+            </div>
+
+            {/* Section: Hotel Images */}
+            <div className="space-y-6 pt-6 border-t border-white/5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-1 ml-1">
+                    Hotel Visual Gallery
+                  </label>
+                  <p className="text-[10px] text-white/20 font-bold uppercase tracking-wider ml-1">
+                    Add high-quality photos to attract premium guests
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
+                  <span className="text-[10px] font-black text-white/40 uppercase tracking-tighter">
+                    {imageFiles.length} Images
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Upload Area */}
+                <div className="relative group">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                  />
+                  <div className="aspect-video w-full rounded-3xl bg-white/5 border-2 border-dashed border-white/10 group-hover:border-cyan-500/30 group-hover:bg-cyan-500/[0.02] transition-all flex flex-col items-center justify-center p-6 text-center overflow-hidden">
+                    <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mb-4 text-2xl shadow-inner group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
+                      📸
+                    </div>
+                    <div className="text-sm font-black text-white/60 mb-1">Add Property Photos</div>
+                    <p className="text-[10px] text-white/20 font-bold uppercase tracking-widest leading-relaxed max-w-[140px]">
+                      Select one or more professional shots
+                    </p>
+                  </div>
+                </div>
+
+                {/* Previews Grid */}
+                <div className="grid grid-cols-2 gap-3 min-h-[120px]">
+                  {imagePreviews.length === 0 ? (
+                    <div className="col-span-2 flex items-center justify-center rounded-3xl bg-white/[0.01] border border-white/5 border-dashed p-4">
+                      <p className="text-[10px] text-white/20 font-bold uppercase tracking-[0.2em] italic">
+                        No images selected
+                      </p>
+                    </div>
+                  ) : (
+                    imagePreviews.slice(0, 4).map((preview, i) => (
+                      <div key={i} className="relative aspect-square rounded-2xl overflow-hidden border border-white/10 shadow-xl group/preview">
+                        <img
+                          src={preview}
+                          alt="Preview"
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover/preview:scale-110"
+                        />
+                        {i === 3 && imagePreviews.length > 4 && (
+                          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                            <span className="text-white font-black text-xs">+{imagePreviews.length - 4} More</span>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover/preview:opacity-100 transition-opacity" />
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
 
