@@ -38,8 +38,11 @@ export default function HotelsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-pulse">
-        <div className="flex justify-between items-end mb-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 animate-pulse">
+        <div className="mb-10">
+          <div className="h-10 w-40 bg-zinc-800 rounded-2xl"></div>
+        </div>
+        <div className="flex justify-between items-end mb-10 text-zinc-800">
           <div className="space-y-3">
             <div className="h-10 w-48 bg-zinc-800 rounded-lg"></div>
             <div className="h-4 w-64 bg-zinc-800 rounded-lg"></div>
@@ -68,17 +71,22 @@ export default function HotelsPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/80 via-transparent to-zinc-950" />
       </div>
 
-      <style jsx global>{`
-        @keyframes pan {
-          0% { transform: scale(1) translateX(0); }
-          50% { transform: scale(1.1) translateX(-2%); }
-          100% { transform: scale(1) translateX(1%); }
-        }
-      `}</style>
 
       {/* Main Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 animate-in fade-in slide-in-from-bottom-6 duration-1000">
         {/* Page Header */}
+        <div className="mb-10">
+          <Link
+            href="/owner/dashboard"
+            className="inline-flex items-center px-6 py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all border border-white/5 group"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 mr-2.5 group-hover:-translate-x-1 transition-transform text-cyan-500">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            <span className="text-xs font-black uppercase tracking-[0.2em]">Back to Dashboard</span>
+          </Link>
+        </div>
+
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-8 mb-16">
           <div className="space-y-2">
             <h1 className="text-5xl font-black text-white tracking-tighter leading-none">

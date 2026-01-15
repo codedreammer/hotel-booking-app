@@ -42,13 +42,6 @@ export default async function EditHotelPage({
         <div className="absolute inset-0 bg-gradient-to-tr from-zinc-950 via-zinc-950/40 to-transparent" />
       </div>
 
-      <style jsx global>{`
-        @keyframes pan {
-          0% { transform: scale(1) translateX(0); }
-          50% { transform: scale(1.1) translateX(-2%); }
-          100% { transform: scale(1) translateX(1%); }
-        }
-      `}</style>
 
       {/* Form Content */}
       <div className="relative z-10 w-full max-w-2xl px-4 py-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
