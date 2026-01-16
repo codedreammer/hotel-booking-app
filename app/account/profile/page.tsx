@@ -1,8 +1,9 @@
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { updateProfile } from "../actions"
 import Header from "@/components/Header"
+import ProfilePanel from "./ProfilePanel"
+import Image from "next/image"
 
 async function getUser() {
   const supabase = await getSupabaseServerClient()
@@ -12,120 +13,69 @@ async function getUser() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, email, phone, role')
+    .select('id, full_name, email, phone, role')
     .eq('id', user.id)
     .single()
 
-  return { ...user, ...profile }
-}
+  // Use avatar_url from user_metadata (from Google or previous updates)
+  const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null
 
-function ProfileForm({ profile }: { profile: any }) {
-  return (
-    <form action={updateProfile} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label htmlFor="full_name" className="block text-sm font-semibold text-gray-700 mb-2">
-            Full Name
-          </label>
-          <input
-            type="text"
-            id="full_name"
-            name="full_name"
-            defaultValue={profile.full_name || ''}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition"
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
-            Phone Number
-          </label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            defaultValue={profile.phone || ''}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition"
-            placeholder="Optional"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-          Email
-        </label>
-        <div className="relative">
-          <input
-            type="email"
-            id="email"
-            value={profile.email || ''}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-500 cursor-not-allowed"
-            disabled
-          />
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            <span className="text-gray-400 text-sm">Cannot be changed</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex space-x-4 pt-4">
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 font-bold shadow-lg shadow-blue-200 transition"
-        >
-          Save Changes
-        </button>
-        <Link
-          href="/account"
-          className="bg-gray-100 text-gray-700 px-8 py-3 rounded-xl hover:bg-gray-200 font-bold transition"
-        >
-          Cancel
-        </Link>
-      </div>
-    </form>
-  )
+  return { ...user, ...profile, avatar_url: avatarUrl }
 }
 
 export default async function ProfilePage() {
   const user = await getUser()
 
-  const initials = user.full_name
-    ? user.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase()
-    : 'G'
-
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className="min-h-screen font-sans relative overflow-hidden bg-[#0a0a0b]">
+      {/* Background Layer */}
+      <div className="fixed inset-0 z-0">
+        <Image
+          src="https://i.pinimg.com/1200x/52/46/7e/52467e0e56de0c4040032e285a444bc5.jpg"
+          alt="Background"
+          fill
+          className="object-cover opacity-60 scale-110"
+          priority
+        />
+        {/* Animated Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/40 to-[#1d4ed8]/20 mix-blend-multiply animate-pulse-slow" />
+        <div className="absolute inset-0 backdrop-blur-[2px]" />
+      </div>
+
       <Header user={user} />
 
-      <main className="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center gap-2">
-          <Link href="/account" className="text-gray-500 hover:text-gray-900 font-medium">Account</Link>
-          <span className="text-gray-300">/</span>
-          <span className="text-gray-900 font-medium">Profile</span>
+      <main className="relative z-10 max-w-4xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+        {/* Breadcrumbs */}
+        <div className="mb-10 flex items-center gap-3 bg-white/10 backdrop-blur-md w-fit px-5 py-2.5 rounded-2xl border border-white/10 shadow-lg">
+          <Link href="/account" className="text-white/60 hover:text-white font-bold text-sm transition-colors uppercase tracking-widest">Account</Link>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-white/20">
+            <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+          </svg>
+          <span className="text-white font-black text-sm uppercase tracking-widest">Profile Upgrade</span>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
-          {/* Profile Header */}
-          <div className="flex items-center mb-10 pb-10 border-b border-gray-100">
-            <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mr-6 shadow-lg shadow-blue-200">
-              {initials}
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-1">
-                {user.full_name || 'Guest'}
-              </h1>
-              <p className="text-gray-500">
-                {user.email}
-              </p>
-            </div>
-          </div>
+        {/* The Card */}
+        <ProfilePanel profile={user} />
 
-          {/* Profile Form */}
-          <ProfileForm profile={user} />
+        {/* Performance Footer */}
+        <div className="mt-12 text-center">
+          <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_#3b82f6]" />
+            Secure Profile Management System v2.0
+          </p>
         </div>
       </main>
+
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 0.8; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(1.05); }
+        }
+        .animate-pulse-slow {
+          animation: pulse-slow 15s ease-in-out infinite;
+        }
+      `}} />
     </div>
   )
 }

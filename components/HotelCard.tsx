@@ -11,6 +11,7 @@ export interface HotelWithMeta {
     price: number      // from meta
     image: string      // from meta
     rating: number     // from meta
+    amenities: string[] // from meta
 }
 
 export default function HotelCard({ hotel, searchParams }: { hotel: HotelWithMeta, searchParams?: any }) {
@@ -54,14 +55,16 @@ export default function HotelCard({ hotel, searchParams }: { hotel: HotelWithMet
                     {hotel.city}
                 </p>
 
-                {/* Amenities Badges (Visual only for now) */}
+                {/* Amenities Badges */}
                 <div className="flex flex-wrap gap-2 mb-4">
-                    {["WiFi", "Pool"].map(tag => (
+                    {hotel.amenities.slice(0, 3).map(tag => (
                         <span key={tag} className="text-[10px] font-medium bg-gray-50 text-gray-500 px-2 py-1 rounded border border-gray-100">
                             {tag}
                         </span>
                     ))}
-                    <span className="text-[10px] font-medium text-gray-400 px-1">+2 more</span>
+                    {hotel.amenities.length > 3 && (
+                        <span className="text-[10px] font-medium text-gray-400 px-1">+{hotel.amenities.length - 3} more</span>
+                    )}
                 </div>
 
                 <div className="mt-auto pt-4 border-t border-gray-50 flex items-end justify-between">

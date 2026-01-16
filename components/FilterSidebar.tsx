@@ -2,9 +2,25 @@
 
 import { useState } from "react"
 
-export default function FilterSidebar() {
-    const [priceRange, setPriceRange] = useState([1000, 20000])
-    const [minRating, setMinRating] = useState(3)
+interface FilterSidebarProps {
+    priceRange: [number, number];
+    setPriceRange: (range: [number, number]) => void;
+    minRating: number | null;
+    setMinRating: (rating: number | null) => void;
+    selectedAmenities: string[];
+    setSelectedAmenities: (amenities: string[]) => void;
+    onClearAll: () => void;
+}
+
+export default function FilterSidebar({
+    priceRange,
+    setPriceRange,
+    minRating,
+    setMinRating,
+    selectedAmenities,
+    setSelectedAmenities,
+    onClearAll
+}: FilterSidebarProps) {
     const [isOpen, setIsOpen] = useState(false)
 
     const amenities = [
@@ -17,6 +33,14 @@ export default function FilterSidebar() {
         "Pet Friendly",
         "Room Service"
     ]
+
+    const handleAmenityChange = (amenity: string) => {
+        if (selectedAmenities.includes(amenity)) {
+            setSelectedAmenities(selectedAmenities.filter(a => a !== amenity))
+        } else {
+            setSelectedAmenities([...selectedAmenities, amenity])
+        }
+    }
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -38,7 +62,10 @@ export default function FilterSidebar() {
             <div className={`p-6 ${isOpen ? 'block' : 'hidden lg:block'}`}>
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="font-bold text-gray-900 text-lg hidden lg:block">Filters</h3>
-                    <button className="text-sm text-blue-600 font-semibold hover:text-blue-800">
+                    <button
+                        onClick={onClearAll}
+                        className="text-sm text-blue-600 font-semibold hover:text-blue-800"
+                    >
                         Clear all
                     </button>
                 </div>
@@ -102,6 +129,8 @@ export default function FilterSidebar() {
                             <label key={item} className="flex items-center gap-3 cursor-pointer">
                                 <input
                                     type="checkbox"
+                                    checked={selectedAmenities.includes(item)}
+                                    onChange={() => handleAmenityChange(item)}
                                     className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                 />
                                 <span className="text-sm text-gray-600">{item}</span>
@@ -113,3 +142,4 @@ export default function FilterSidebar() {
         </div>
     )
 }
+

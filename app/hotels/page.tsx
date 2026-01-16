@@ -2,8 +2,8 @@ import { getHotelsByCity } from "./actions";
 import Header from "@/components/Header"
 import AnimatedBackground from "@/components/AnimatedBackground"
 import SearchForm from "@/components/SearchForm"
-import FilterSidebar from "@/components/FilterSidebar"
-import HotelCard, { HotelWithMeta } from "@/components/HotelCard"
+import { HotelWithMeta } from "@/components/HotelCard"
+import HotelSearchResults from "@/components/HotelSearchResults"
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 
@@ -64,10 +64,27 @@ export default async function HotelsPage({
       "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1582719508461-905c673771fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
     ];
+
+    const allAmenities = [
+      "WiFi",
+      "Pool",
+      "Gym",
+      "Spa",
+      "Restaurant",
+      "Parking",
+      "Pet Friendly",
+      "Room Service"
+    ];
+
+    // Derive amenities from hash
+    const amenities = allAmenities.filter((_, index) => (hash + index) % 3 === 0);
+    if (amenities.length === 0) amenities.push(allAmenities[hash % allAmenities.length]);
+
     return {
       price,
       image: images[hash % images.length],
-      rating: 4.0 + (hash % 10) / 10
+      rating: 4.0 + (hash % 10) / 10,
+      amenities
     };
   };
 
@@ -99,54 +116,13 @@ export default async function HotelsPage({
       </div>
 
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="flex flex-col lg:flex-row gap-8">
-
-          {/* Left Sidebar (Filters) */}
-          <aside className="w-full lg:w-72 flex-shrink-0">
-            <div className="lg:sticky lg:top-28">
-              {/* Mobile Toggle can be added here if needed, for now using standard visibility classes */}
-              <div className="block">
-                <FilterSidebar />
-              </div>
-            </div>
-          </aside>
-
-          {/* Right Content */}
-          <div className="flex-1">
-            {/* Header & Count */}
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold text-gray-900">
-                {city ? `${hotels.length} hotels in ${city}` : "Explore Hotels"}
-              </h1>
-              <p className="text-gray-500 text-sm mt-1">
-                {checkIn && checkOut
-                  ? `${new Date(checkIn).toLocaleDateString()} — ${new Date(checkOut).toLocaleDateString()} • ${guests} Guests`
-                  : "Find your perfect stay"
-                }
-              </p>
-            </div>
-
-            {/* Grid */}
-            {hotels.length === 0 && city ? (
-              <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200">
-                <div className="text-gray-300 text-6xl mb-4">🏨</div>
-                <h3 className="text-lg font-semibold text-gray-900">No hotels found</h3>
-                <p className="text-gray-500">Try adjusting your search or filters.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {hotels.map(hotel => (
-                  <HotelCard
-                    key={hotel.id}
-                    hotel={hotel}
-                    searchParams={{ city, check_in: checkIn, check_out: checkOut, guests }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-        </div>
+        <HotelSearchResults
+          initialHotels={hotels}
+          city={city}
+          checkIn={checkIn}
+          checkOut={checkOut}
+          guests={guests}
+        />
       </main>
     </div>
   );
