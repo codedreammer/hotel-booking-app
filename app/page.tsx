@@ -3,8 +3,7 @@ import Image from "next/image"
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 
-import LogoutButton from "@/components/LogoutButton"
-import OwnerCTAButton from "@/components/OwnerCTAButton"
+import Header from "@/components/Header"
 import BackgroundSlideshow from "@/components/BackgroundSlideshow"
 import SearchForm from "@/components/SearchForm"
 
@@ -40,53 +39,7 @@ export default async function Home() {
     <div className="min-h-screen relative font-sans">
       <BackgroundSlideshow />
 
-      {/* Header */}
-      <header className="relative z-10 w-full py-6">
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            {/* Logo Icon */}
-            <div className="bg-blue-600 text-white p-1.5 rounded-md">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
-              </svg>
-            </div>
-            <span className="text-2xl font-bold text-gray-900 tracking-tight">StaySafe</span>
-          </div>
-
-          <nav className="flex items-center space-x-6">
-            <Link href="/" className="text-gray-900 hover:text-blue-600 font-medium">Home</Link>
-            <Link href="/hotels" className="text-gray-900 hover:text-blue-600 font-medium">Search Hotels</Link>
-
-            {!user ? (
-              <>
-                <Link href="/login" className="text-gray-700 hover:text-blue-600 font-medium">
-                  Sign In
-                </Link>
-                <Link
-                  href="/signup"
-                  className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition shadow-sm"
-                >
-                  Sign Up
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link href="/account" className="text-gray-900 hover:text-blue-700 font-medium">
-                  My Account
-                </Link>
-                {user.role === 'owner' ? (
-                  <Link href="/owner/dashboard" className="text-blue-600 font-semibold hover:underline">
-                    Owner Dashboard
-                  </Link>
-                ) : (
-                  <OwnerCTAButton />
-                )}
-                <LogoutButton />
-              </>
-            )}
-          </nav>
-        </div>
-      </header>
+      <Header user={user} />
 
       {/* Main Content */}
       <main className="relative z-10 flex flex-col items-center justify-center pt-20 px-4">
