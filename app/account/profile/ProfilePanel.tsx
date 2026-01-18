@@ -123,7 +123,8 @@ export default function ProfilePanel({ profile: initialProfile }: { profile: Pro
                                     className="w-full h-full object-cover"
                                 />
                             ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-blue-600 to-blue-500 flex items-center justify-center text-white text-4xl font-black">
+                                <div className="w-full h-full bg-gradient-to-brnpm run dev
+ from-blue-600 to-blue-500 flex items-center justify-center text-white text-4xl font-black">
                                     {initials}
                                 </div>
                             )}
@@ -168,7 +169,7 @@ export default function ProfilePanel({ profile: initialProfile }: { profile: Pro
                                     id="full_name"
                                     name="full_name"
                                     defaultValue={profile.full_name || ''}
-                                    className="w-full px-6 py-4 bg-gray-50/50 border border-gray-200 rounded-[1.5rem] focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all duration-300 font-medium text-gray-900"
+                                    className="w-full px-6 py-4 bg-gray-50/50 border border-gray-200 rounded-3xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all duration-300 font-medium text-gray-900"
                                     placeholder="Enter your name"
                                     required
                                 />
@@ -185,7 +186,7 @@ export default function ProfilePanel({ profile: initialProfile }: { profile: Pro
                                     id="phone"
                                     name="phone"
                                     defaultValue={profile.phone || ''}
-                                    className="w-full px-6 py-4 bg-gray-50/50 border border-gray-200 rounded-[1.5rem] focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all duration-300 font-medium text-gray-900"
+                                    className="w-full px-6 py-4 bg-gray-50/50 border border-gray-200 rounded-3xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all duration-300 font-medium text-gray-900"
                                     placeholder="+1 (555) 000-0000"
                                 />
                             </div>
@@ -201,7 +202,7 @@ export default function ProfilePanel({ profile: initialProfile }: { profile: Pro
                                 type="email"
                                 id="email"
                                 value={profile.email || ''}
-                                className="w-full px-6 py-4 bg-gray-100/50 border border-gray-100 rounded-[1.5rem] text-gray-400 cursor-not-allowed font-medium select-none"
+                                className="w-full px-6 py-4 bg-gray-100/50 border border-gray-100 rounded-3xl text-gray-400 cursor-not-allowed font-medium select-none"
                                 disabled
                             />
                             <div className="absolute inset-y-0 right-6 flex items-center pointer-events-none">
@@ -218,13 +219,13 @@ export default function ProfilePanel({ profile: initialProfile }: { profile: Pro
                     <div className="flex flex-col sm:flex-row gap-4 pt-6">
                         <button
                             type="submit"
-                            className="bg-blue-600 text-white px-10 py-4 rounded-[1.5rem] hover:bg-blue-700 font-black shadow-[0_15px_30px_-5px_rgba(37,99,235,0.4)] transition-all duration-300 hover:-translate-y-1 active:scale-95 flex-1 md:flex-none md:min-w-[200px]"
+                            className="bg-blue-600 text-white px-10 py-4 rounded-3xl hover:bg-blue-700 font-black shadow-[0_15px_30px_-5px_rgba(37,99,235,0.4)] transition-all duration-300 hover:-translate-y-1 active:scale-95 flex-1 md:flex-none md:min-w-50"
                         >
                             Save Changes
                         </button>
                         <Link
                             href="/account"
-                            className="bg-white/50 text-gray-700 px-10 py-4 rounded-[1.5rem] hover:bg-white hover:text-gray-900 font-bold border border-gray-200 transition-all duration-300 flex-1 md:flex-none text-center"
+                            className="bg-white/50 text-gray-700 px-10 py-4 rounded-3xl hover:bg-white hover:text-gray-900 font-bold border border-gray-200 transition-all duration-300 flex-1 md:flex-none text-center"
                         >
                             Back to Account
                         </Link>

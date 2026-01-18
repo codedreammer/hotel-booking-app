@@ -111,7 +111,7 @@ export default function EditHotelForm({ hotel }: { hotel: Hotel }) {
   return (
     <form
       onSubmit={handleUpdateHotel}
-      className="bg-white/[0.02] backdrop-blur-3xl border border-white/10 rounded-[3rem] p-8 sm:p-12 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] relative overflow-hidden group shadow-cyan-500/5 mb-10"
+      className="bg-white/2 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-8 sm:p-12 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] relative overflow-hidden group shadow-cyan-500/5 mb-10"
     >
       {/* Enhanced Glow Effects */}
       <div className="absolute -top-32 -right-32 w-64 h-64 bg-cyan-500/10 blur-[120px] rounded-full" />
@@ -244,7 +244,7 @@ export default function EditHotelForm({ hotel }: { hotel: Hotel }) {
                 onChange={handleImageChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
               />
-              <div className="aspect-video w-full rounded-3xl bg-white/5 border-2 border-dashed border-white/10 group-hover:border-cyan-500/30 group-hover:bg-cyan-500/[0.02] transition-all flex flex-col items-center justify-center p-6 text-center overflow-hidden">
+              <div className="aspect-video w-full rounded-3xl bg-white/5 border-2 border-dashed border-white/10 group-hover:border-cyan-500/30 group-hover:bg-cyan-500/2 transition-all flex flex-col items-center justify-center p-6 text-center overflow-hidden">
                 <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mb-4 text-2xl shadow-inner group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
                   📸
                 </div>
@@ -256,9 +256,9 @@ export default function EditHotelForm({ hotel }: { hotel: Hotel }) {
             </div>
 
             {/* Previews Grid */}
-            <div className="grid grid-cols-2 gap-3 min-h-[120px]">
+            <div className="grid grid-cols-2 gap-3 min-h-30">
               {imagePreviews.length === 0 ? (
-                <div className="col-span-2 flex flex-col items-center justify-center rounded-3xl bg-white/[0.01] border border-white/5 border-dashed p-4">
+                <div className="col-span-2 flex flex-col items-center justify-center rounded-3xl bg-white/1 border border-white/5 border-dashed p-4">
                   {hotel.image_url ? (
                     <div className="relative w-full h-full rounded-2xl overflow-hidden opacity-40 grayscale group-hover:grayscale-0 transition-all duration-500">
                       <img src={hotel.image_url} alt="Current" className="w-full h-full object-cover" />
@@ -313,7 +313,7 @@ export default function EditHotelForm({ hotel }: { hotel: Hotel }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full sm:w-auto px-12 py-4 rounded-2xl bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-black shadow-[0_12px_24px_-8px_rgba(6,182,212,0.5)] transition-all duration-300 active:scale-[0.98] flex items-center justify-center min-w-[200px] disabled:opacity-50"
+            className="w-full sm:w-auto px-12 py-4 rounded-2xl bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-black shadow-[0_12px_24px_-8px_rgba(6,182,212,0.5)] transition-all duration-300 active:scale-[0.98] flex items-center justify-center min-w-50 disabled:opacity-50"
           >
             {loading ? (
               <div className="flex items-center gap-2">
