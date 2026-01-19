@@ -1,38 +1,38 @@
-    "use server";
+"use server";
 
-    import { cookies } from "next/headers";
-    import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 
-    async function getSupabase() {
+async function getSupabase() {
     const cookieStore = await cookies();
 
     return createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
-        cookies: {
-            getAll: () => cookieStore.getAll(),
-            setAll: (cookiesToSet) => {
-            cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-            );
+            cookies: {
+                getAll: () => cookieStore.getAll(),
+                setAll: (cookiesToSet) => {
+                    cookiesToSet.forEach(({ name, value, options }) =>
+                        cookieStore.set(name, value, options)
+                    );
+                },
             },
-        },
         }
     );
-    }
+}
 
-    export async function getHotelAvailability(
+export async function getHotelAvailability(
     hotelId: string,
     checkIn: string,
     checkOut: string
-    ) {
+) {
     const supabase = await getSupabase();
 
     /* 1️⃣ Rooms for hotel */
     const { data: rooms, error: roomError } = await supabase
         .from("rooms")
-        .select("id, rooms_type, price_per_night, total_rooms, max_guests")
+        .select("id, rooms_type, price_per_night, total_rooms, max_guests, image_url")
         .eq("hotel_id", hotelId)
         .eq("is_active", true);
 
@@ -65,7 +65,8 @@
         rooms_type: room.rooms_type,
         price_per_night: room.price_per_night,
         max_guests: room.max_guests,
+        image_url: room.image_url,
         available_rooms:
-        room.total_rooms - (bookingCount[room.id] ?? 0),
+            room.total_rooms - (bookingCount[room.id] ?? 0),
     }));
-    }
+}

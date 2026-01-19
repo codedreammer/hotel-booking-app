@@ -4,16 +4,16 @@ import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 
 function getDatesBetween(start: string, end: string) {
-  const dates: string[] = [];
-  let current = new Date(start);
-  const last = new Date(end);
+    const dates: string[] = [];
+    let current = new Date(start);
+    const last = new Date(end);
 
-  while (current < last) {
-    dates.push(current.toISOString().split("T")[0]);
-    current.setDate(current.getDate() + 1);
-  }
+    while (current < last) {
+        dates.push(current.toISOString().split("T")[0]);
+        current.setDate(current.getDate() + 1);
+    }
 
-  return dates;
+    return dates;
 }
 
 async function getSupabase() {
@@ -24,7 +24,7 @@ async function getSupabase() {
         {
             cookies: {
                 getAll: () => cookieStore.getAll(),
-                setAll: () => {},
+                setAll: () => { },
             },
         }
     );
@@ -35,7 +35,7 @@ export async function getAvailabilityData(days = 14) {
         const supabase = await getSupabase();
 
         const { data: { user }, error: userError } = await supabase.auth.getUser();
-        
+
         if (!user) {
             return { hotels: [], rooms: [], bookings: [], error: "No user" };
         }
@@ -62,7 +62,7 @@ export async function getAvailabilityData(days = 14) {
         if (!rooms || rooms.length === 0) {
             return { hotels, rooms: [], bookings: [], error: "No rooms" };
         }
-        
+
         const roomIds = rooms.map(r => r.id);
 
         const { data: bookings, error: bookingError } = await supabase
@@ -72,22 +72,22 @@ export async function getAvailabilityData(days = 14) {
 
         // Build occupancy map
         const occupancyByRoom: Record<string, Record<string, number>> = {};
-        
+
         for (const room of rooms) {
-            const roomBookings = bookings?.filter(b => 
-                b.room_id === room.id && 
+            const roomBookings = bookings?.filter(b =>
+                b.room_id === room.id &&
                 b.status !== "cancelled"
             ) || [];
-            
+
             const occupancy: Record<string, number> = {};
-            
+
             for (const b of roomBookings) {
                 const days = getDatesBetween(b.check_in, b.check_out);
                 for (const day of days) {
                     occupancy[day] = (occupancy[day] ?? 0) + 1;
                 }
             }
-            
+
             occupancyByRoom[room.id] = occupancy;
         }
 
@@ -97,7 +97,7 @@ export async function getAvailabilityData(days = 14) {
     }
 }
 
-    export async function getBookingsForDate(roomId: string, date: string) {
+export async function getBookingsForDate(roomId: string, date: string) {
     const supabase = await getSupabase();
 
     const { data: { user } } = await supabase.auth.getUser();
@@ -114,4 +114,4 @@ export async function getAvailabilityData(days = 14) {
     if (error) throw error;
 
     return data;
-    }
+}

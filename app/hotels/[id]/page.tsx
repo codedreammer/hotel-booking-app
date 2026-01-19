@@ -1,3 +1,4 @@
+import BackgroundImage from "@/components/BackgroundImage";
 import { getHotelAvailability } from "./actions";
 import Header from "@/components/Header";
 import { createServerClient } from "@supabase/ssr";
@@ -45,9 +46,10 @@ export default async function HotelPage({
 
     if (!check_in || !check_out) {
         return (
-            <div className="min-h-screen bg-gray-50 font-sans">
+            <div className="min-h-screen font-sans relative">
+                <BackgroundImage />
                 <Header user={user} />
-                <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center">
+                <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center relative z-10">
                     <div className="bg-white p-8 rounded-2xl shadow-sm border border-red-100 inline-block">
                         <p className="text-red-500 font-medium mb-4">Please select check-in and check-out dates to view availability.</p>
                         <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium hover:underline">
@@ -62,16 +64,17 @@ export default async function HotelPage({
     const rooms = await getHotelAvailability(id, check_in, check_out);
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans">
+        <div className="min-h-screen font-sans relative">
+            <BackgroundImage />
             <Header user={user} />
 
             <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 <div className="mb-8">
-                    <Link href={`/hotels?city=&check_in=${check_in}&check_out=${check_out}`} className="text-sm text-gray-500 hover:text-gray-900 mb-4 inline-block">
+                    <Link href={`/hotels?city=&check_in=${check_in}&check_out=${check_out}`} className="text-sm text-white/70 hover:text-white mb-4 inline-block transition-colors">
                         ← Back to Results
                     </Link>
-                    <h1 className="text-3xl font-bold text-gray-900">Available Rooms</h1>
-                    <p className="text-gray-500 mt-2">
+                    <h1 className="text-3xl font-bold text-white shadow-sm">Available Rooms</h1>
+                    <p className="text-white/80 mt-2 text-lg font-medium shadow-sm">
                         {new Date(check_in).toLocaleDateString()} — {new Date(check_out).toLocaleDateString()}
                     </p>
                 </div>
@@ -88,10 +91,18 @@ export default async function HotelPage({
                                 className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col"
                             >
                                 <div className="h-48 bg-gray-100 relative">
-                                    {/* Placeholder for Room Image */}
-                                    <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-200">
-                                        <span className="text-4xl">🛏️</span>
-                                    </div>
+                                    {room.image_url ? (
+                                        <img
+                                            src={room.image_url}
+                                            alt={room.rooms_type}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        /* Placeholder for Room Image */
+                                        <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-200">
+                                            <span className="text-4xl">🛏️</span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="p-6 flex-1 flex flex-col">
@@ -121,8 +132,8 @@ export default async function HotelPage({
                                                     : "#"
                                             }
                                             className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition shadow-lg ${room.available_rooms > 0
-                                                    ? "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-200"
-                                                    : "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none"
+                                                ? "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-200"
+                                                : "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none"
                                                 }`}
                                         >
                                             {room.available_rooms > 0 ? "Book Now" : "Sold Out"}
